@@ -20,6 +20,12 @@ UPBlioteca es una plataforma web desarrollada en Next.js que permite a estudiant
 - [Lucide React](https://lucide.dev/) - Íconos
 - [React Toastify](https://fkhadra.github.io/react-toastify/) - Notificaciones
 
+## Scripts disponibles
+
+- `npm run dev` - Inicia el servidor de desarrollo
+- `npm run build` - Construye la aplicación para producción
+- `npm start` - Inicia el servidor de producción
+- `npm run lint` - Ejecuta el linter
 ## Requisitos previos
 
 - Node.js (versión 14 o superior)
@@ -63,12 +69,6 @@ yarn dev
 
 6. Abre [http://localhost:3000](http://localhost:3000) en tu navegador para ver la aplicación.
 
-## Scripts disponibles
-
-- `npm run dev` - Inicia el servidor de desarrollo
-- `npm run build` - Construye la aplicación para producción
-- `npm start` - Inicia el servidor de producción
-- `npm run lint` - Ejecuta el linter
 
 ## Despliegue
 

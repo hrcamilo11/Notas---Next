@@ -62,7 +62,7 @@ const StarRating = React.memo(({ rating, onRate }: { rating: number, onRate: (ra
                         <Star
                             key={index}
                             className={`h-5 w-5 cursor-pointer ${
-                                ratingValue <= (hover || rating) ? 'text-yellow-400' : 'text-gray-300'
+                                ratingValue <= (hover || rating) ? 'text-primary' : 'text-muted'
                             }`}
                             onClick={() => onRate(ratingValue)}
                             onMouseEnter={() => setHover(ratingValue)}
@@ -71,7 +71,7 @@ const StarRating = React.memo(({ rating, onRate }: { rating: number, onRate: (ra
                     )
                 })}
             </div>
-            <span className="text-sm text-blue-600">({rating.toFixed(1)})</span>
+            <span className="text-sm text-muted-foreground">({rating.toFixed(1)})</span>
         </div>
     )
 })
@@ -122,7 +122,6 @@ export default function Component() {
         const { username, password, email, university } = data as User;
         const passwordError = validatePassword(password);
         if (passwordError) {
-
             return toast.error(passwordError);
         }
         const hashedPassword = btoa(password); // Note: This is not secure, use a proper hashing algorithm in production
@@ -268,7 +267,6 @@ export default function Component() {
         }
     }, [currentUser, setValue])
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     const debouncedSearch = useCallback(
         debounce((term: string) => {
             setSearchTerm(term)
@@ -296,10 +294,10 @@ export default function Component() {
     const featuredPublications = publications.filter(pub => pub.featured).slice(0, 3)
 
     return (
-        <div className="min-h-screen flex flex-col bg-blue-50">
+        <div className="min-h-screen flex flex-col bg-background">
             <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} newestOnTop={false} closeOnClick rtl={false} pauseOnFocusLoss draggable pauseOnHover />
             {/* Header */}
-            <header className="w-full bg-blue-600 text-white py-4">
+            <header className="w-full bg-primary text-primary-foreground py-4">
                 <div className="container mx-auto px-4 flex justify-between items-center">
                     <h1 className="text-2xl font-bold">UPBlioteca</h1>
                     <div className="flex items-center space-x-4">
@@ -311,13 +309,13 @@ export default function Component() {
                                 </span>
                                 <Button
                                     onClick={() => setCurrentView(currentView === 'home' ? 'publications' : 'home')}
-                                    className="bg-blue-500 hover:bg-blue-700 text-white"
+                                    className="bg-secondary hover:bg-secondary/90 text-secondary-foreground"
                                 >
                                     {currentView === 'home' ? 'Mis Publicaciones' : 'Inicio'}
                                 </Button>
                                 <Dialog open={isProfileDialogOpen} onOpenChange={setIsProfileDialogOpen}>
                                     <DialogTrigger asChild>
-                                        <Button className="bg-blue-500 hover:bg-blue-700 text-white">
+                                        <Button className="bg-secondary hover:bg-secondary/90 text-secondary-foreground">
                                             <User className="mr-2 h-4 w-4" /> Perfil
                                         </Button>
                                     </DialogTrigger>
@@ -383,7 +381,7 @@ export default function Component() {
                                         </form>
                                     </DialogContent>
                                 </Dialog>
-                                <Button onClick={handleLogout} className="bg-blue-500 hover:bg-blue-700 text-white">
+                                <Button onClick={handleLogout} className="bg-secondary hover:bg-secondary/90 text-secondary-foreground">
                                     Cerrar Sesión
                                 </Button>
                             </>
@@ -391,7 +389,7 @@ export default function Component() {
                             <>
                                 <Dialog open={isRegisterDialogOpen} onOpenChange={setIsRegisterDialogOpen}>
                                     <DialogTrigger asChild>
-                                        <Button className="bg-blue-500 hover:bg-blue-700 text-white">Registrarse</Button>
+                                        <Button className="bg-secondary hover:bg-secondary/90 text-secondary-foreground">Registrarse</Button>
                                     </DialogTrigger>
                                     <DialogContent className="sm:max-w-[425px]">
                                         <DialogHeader>
@@ -448,14 +446,14 @@ export default function Component() {
                                                 </div>
                                             </div>
                                             <DialogFooter>
-                                                <Button type="submit" className="bg-blue-500 hover:bg-blue-700">Registrarse</Button>
+                                                <Button type="submit" className="bg-primary hover:bg-primary/90">Registrarse</Button>
                                             </DialogFooter>
                                         </form>
                                     </DialogContent>
                                 </Dialog>
                                 <Dialog open={isLoginDialogOpen} onOpenChange={setIsLoginDialogOpen}>
                                     <DialogTrigger asChild>
-                                        <Button className="bg-blue-500 hover:bg-blue-700 text-white">Iniciar Sesión</Button>
+                                        <Button className="bg-secondary hover:bg-secondary/90 text-secondary-foreground">Iniciar Sesión</Button>
                                     </DialogTrigger>
                                     <DialogContent className="sm:max-w-[425px]">
                                         <DialogHeader>
@@ -489,7 +487,7 @@ export default function Component() {
                                                 </div>
                                             </div>
                                             <DialogFooter>
-                                                <Button type="submit" className="bg-blue-500 hover:bg-blue-700">Iniciar Sesión</Button>
+                                                <Button type="submit" className="bg-primary hover:bg-primary/90">Iniciar Sesión</Button>
                                             </DialogFooter>
                                         </form>
                                     </DialogContent>
@@ -501,32 +499,32 @@ export default function Component() {
             </header>
             {/* Main Content */}
             <main className="flex-grow container mx-auto px-4 py-8">
-                <Card className="w-full bg-white shadow-lg">
+                <Card className="w-full bg-card shadow-lg mx-auto px-1 py-4">
                     <CardContent>
                         {currentView === 'home' ? (
                             <>
                                 <div className="mb-8 relative">
-                                    <div className="overflow-hidden rounded-lg bg-blue-100 p-6" style={{ height: "calc(100% * 1.25)" }}>
-                                        <h2 className="text-2xl font-bold text-blue-800 mb-2">{sliderContent[sliderIndex].title}</h2>
-                                        <p className="text-blue-600">{sliderContent[sliderIndex].description}</p>
+                                    <div className="overflow-hidden rounded-lg bg-muted p-6" style={{ height: "calc(100% * 1.25)" }}>
+                                        <h2 className="text-2xl font-bold text-primary mb-2">{sliderContent[sliderIndex].title}</h2>
+                                        <p className="text-muted-foreground">{sliderContent[sliderIndex].description}</p>
                                     </div>
                                 </div>
                                 <div className="mb-8">
-                                    <h3 className="text-xl font-semibold text-blue-800 mb-4">Publicaciones destacadas</h3>
+                                    <h3 className="text-xl font-semibold text-primary mb-4">Publicaciones destacadas</h3>
                                     <div className="grid gap-4 md:grid-cols-3">
                                         {featuredPublications.map((pub) => (
-                                            <Card key={pub.id} className="bg-blue-50">
+                                            <Card key={pub.id} className="bg-card">
                                                 <CardHeader>
-                                                    <CardTitle className="text-blue-800 flex items-center">
-                                                        <Star className="h-5 w-5 text-yellow-500 mr-2" />
+                                                    <CardTitle className="text-primary flex items-center">
+                                                        <Star className="h-5 w-5 text-primary mr-2" />
                                                         {pub.name}
                                                     </CardTitle>
-                                                    <CardDescription className="text-blue-600">
+                                                    <CardDescription className="text-muted-foreground">
                                                         {pub.subject} - {pub.university}
                                                     </CardDescription>
                                                 </CardHeader>
                                                 <CardContent>
-                                                    <p className="text-blue-700">
+                                                    <p className="text-primary">
                                                         Autor:
                                                         <Button
                                                             variant="link"
@@ -542,7 +540,7 @@ export default function Component() {
                                                             onRate={(rating) => handleRate(pub.id, rating)}
                                                         />
                                                     </div>
-                                                    <p className="text-sm text-blue-600 mt-1">Descargas: {pub.downloadCount}</p>
+                                                    <p className="text-sm text-muted-foreground mt-1">Descargas: {pub.downloadCount}</p>
                                                 </CardContent>
                                                 <CardFooter>
                                                     <Button
@@ -572,23 +570,23 @@ export default function Component() {
                                         onChange={handleSearchChange}
                                         className="flex-grow mr-2"
                                     />
-                                    <Button className="bg-blue-500 hover:bg-blue-700">
+                                    <Button className="bg-primary hover:bg-primary/90 text-primary-foreground">
                                         <Search className="h-4 w-4 mr-2" />
                                         Buscar
                                     </Button>
                                 </div>
-                                <h3 className="text-xl font-semibold text-blue-800 mb-4">Documentos recientes</h3>
+                                <h3 className="text-xl font-semibold text-primary mb-4">Documentos recientes</h3>
                                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                                     {currentPublications.map((pub) => (
-                                        <Card key={pub.id} className="bg-blue-50">
+                                        <Card key={pub.id} className="bg-card">
                                             <CardHeader>
-                                                <CardTitle className="text-blue-800">{pub.name}</CardTitle>
-                                                <CardDescription className="text-blue-600">
+                                                <CardTitle className="text-primary">{pub.name}</CardTitle>
+                                                <CardDescription className="text-muted-foreground">
                                                     {pub.subject} - {pub.university}
                                                 </CardDescription>
                                             </CardHeader>
                                             <CardContent>
-                                                <p className="text-blue-700">
+                                                <p className="text-primary">
                                                     Autor:
                                                     <Button
                                                         variant="link"
@@ -604,7 +602,7 @@ export default function Component() {
                                                         onRate={(rating) => handleRate(pub.id, rating)}
                                                     />
                                                 </div>
-                                                <p className="text-sm text-blue-600 mt-1">Descargas: {pub.downloadCount}</p>
+                                                <p className="text-sm text-muted-foreground mt-1">Descargas: {pub.downloadCount}</p>
                                             </CardContent>
                                             <CardFooter>
                                                 <Button
@@ -631,7 +629,7 @@ export default function Component() {
                                         <Button
                                             key={i}
                                             onClick={() => paginate(i + 1)}
-                                            className={`mx-1 ${currentPage === i + 1 ? 'bg-blue-600' : 'bg-blue-200'}`}
+                                            className={`mx-1 ${currentPage === i + 1 ? 'bg-primary' : 'bg-secondary'}`}
                                         >
                                             {i + 1}
                                         </Button>
@@ -641,7 +639,7 @@ export default function Component() {
                         ) : (
                             currentUser ? (
                                 <div className="space-y-6">
-                                    <h3 className="text-xl font-semibold text-blue-800">Crear nueva publicación</h3>
+                                    <h3 className="text-xl font-semibold text-primary">Crear nueva publicación</h3>
                                     <form onSubmit={handleCreatePublication} className="space-y-4">
                                         <div className="space-y-2">
                                             <Label htmlFor="pub-name">Nombre del documento</Label>
@@ -690,16 +688,16 @@ export default function Component() {
                                                 required
                                             />
                                         </div>
-                                        <Button type="submit" className="w-full bg-blue-500 hover:bg-blue-700">Crear Publicación</Button>
+                                        <Button type="submit" className="w-full bg-primary hover:bg-primary/90">Crear Publicación</Button>
                                     </form>
                                     <div className="mt-6">
-                                        <h3 className="text-xl font-semibold text-blue-800 mb-4">Mis publicaciones</h3>
+                                        <h3 className="text-xl font-semibold text-primary mb-4">Mis publicaciones</h3>
                                         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                                             {publications.filter(pub => pub.author.username === currentUser.username).map((pub) => (
-                                                <Card key={pub.id} className="bg-blue-50">
+                                                <Card key={pub.id} className="bg-card">
                                                     <CardHeader>
-                                                        <CardTitle className="text-blue-800">{pub.name}</CardTitle>
-                                                        <CardDescription className="text-blue-600">
+                                                        <CardTitle className="text-primary">{pub.name}</CardTitle>
+                                                        <CardDescription className="text-muted-foreground">
                                                             {pub.subject} - {pub.university}
                                                         </CardDescription>
                                                     </CardHeader>
@@ -710,7 +708,7 @@ export default function Component() {
                                                                 onRate={(rating) => handleRate(pub.id, rating)}
                                                             />
                                                         </div>
-                                                        <p className="text-sm text-blue-600 mt-1">Descargas: {pub.downloadCount}</p>
+                                                        <p className="text-sm text-muted-foreground mt-1">Descargas: {pub.downloadCount}</p>
                                                     </CardContent>
                                                     <CardFooter>
                                                         <Button
@@ -735,14 +733,14 @@ export default function Component() {
                                     </div>
                                 </div>
                             ) : (
-                                <p className="text-blue-600">Por favor, inicia sesión para ver y crear publicaciones.</p>
+                                <p className="text-muted-foreground">Por favor, inicia sesión para ver y crear publicaciones.</p>
                             )
                         )}
                     </CardContent>
                 </Card>
             </main>
             {/* Footer */}
-            <footer className="bg-blue-800 text-white py-8">
+            <footer className="bg-primary text-primary-foreground py-8">
                 <div className="container mx-auto px-4">
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                         <div>
