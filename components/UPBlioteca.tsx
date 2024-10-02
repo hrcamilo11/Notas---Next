@@ -4,7 +4,6 @@ import React, { useState, useEffect, useCallback } from 'react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { User, Search, Star, FileText, Download } from 'lucide-react'
 import {
@@ -16,10 +15,11 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog"
-import {FieldValues, useForm} from 'react-hook-form'
+import { FieldValues, useForm } from 'react-hook-form'
 import { toast, ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import { debounce } from 'lodash'
+import Link from 'next/link'
 
 type User = {
     username: string
@@ -78,11 +78,11 @@ const StarRating = React.memo(({ rating, onRate }: { rating: number, onRate: (ra
 
 StarRating.displayName = 'StarRating'
 
-export default function UPBlioteca() {
+export default function Component() {
     const [users, setUsers] = useState<User[]>([])
     const [publications, setPublications] = useState<Publication[]>([])
     const [currentUser, setCurrentUser] = useState<User | null>(null)
-    const [activeTab, setActiveTab] = useState('home')
+    const [currentView, setCurrentView] = useState('home')
     const [sliderIndex, setSliderIndex] = useState(0)
     const [searchTerm, setSearchTerm] = useState('')
     const [currentPage, setCurrentPage] = useState(1)
@@ -101,8 +101,30 @@ export default function UPBlioteca() {
         university: '',
     })
 
+    const validatePassword = (password: string) => {
+        const minLength = 8;
+        const hasNumber = /\d/.test(password);
+        const hasSpecialChar = /[.*\-\/!@#$%^&(){}[\]:;<>,?~_+=|\\]/.test(password);
+
+        if (password.length < minLength) {
+            return "La contraseña debe tener al menos 8 caracteres.";
+        }
+        if (!hasNumber) {
+            return "La contraseña debe contener al menos un número.";
+        }
+        if (!hasSpecialChar) {
+            return "La contraseña debe contener al menos un carácter especial.";
+        }
+        return null;
+    };
+
     const handleRegister = useCallback((data: FieldValues) => {
         const { username, password, email, university } = data as User;
+        const passwordError = validatePassword(password);
+        if (passwordError) {
+
+            return toast.error(passwordError);
+        }
         const hashedPassword = btoa(password); // Note: This is not secure, use a proper hashing algorithm in production
         const newUser = { username, password: hashedPassword, email, university };
         setUsers(prevUsers => [...prevUsers, newUser]);
@@ -117,7 +139,7 @@ export default function UPBlioteca() {
         const user = users.find(u => u.username === username && u.password === btoa(password));
         if (user) {
             setCurrentUser(user);
-            setActiveTab('home');
+            setCurrentView('home');
             setIsLoginDialogOpen(false);
             toast.success('Inicio de sesión exitoso');
         } else {
@@ -127,7 +149,7 @@ export default function UPBlioteca() {
 
     const handleLogout = useCallback(() => {
         setCurrentUser(null)
-        setActiveTab('home')
+        setCurrentView('home')
         toast.info('Sesión cerrada')
     }, [])
 
@@ -136,6 +158,10 @@ export default function UPBlioteca() {
         if (currentUser) {
             const fileInput = document.getElementById('pub-file') as HTMLInputElement
             const file = fileInput.files ? fileInput.files[0] : null
+            if (file && file.type !== 'application/pdf') {
+                toast.error('Solo se permiten archivos PDF.')
+                return
+            }
             const newPub: Publication = {
                 ...newPublication,
                 author: currentUser,
@@ -157,6 +183,11 @@ export default function UPBlioteca() {
         if (currentUser) {
             const updatedUser = { ...currentUser, university };
             if (newPassword) {
+                const passwordError = validatePassword(newPassword);
+                if (passwordError) {
+                    toast.error(passwordError);
+                    return;
+                }
                 updatedUser.password = btoa(newPassword);
             }
             setUsers(prevUsers => prevUsers.map(u => u.username === currentUser.username ? updatedUser : u));
@@ -165,7 +196,6 @@ export default function UPBlioteca() {
             setIsProfileDialogOpen(false);
         }
     }, [currentUser]);
-
 
     const handlePublicationClick = useCallback((publication: Publication) => {
         setSelectedPublication(publication)
@@ -275,10 +305,16 @@ export default function UPBlioteca() {
                     <div className="flex items-center space-x-4">
                         {currentUser ? (
                             <>
-                <span className="flex items-center mr-2">
-                  <User className="mr-2 h-4 w-4" />
-                  Hola, {currentUser.username}
-                </span>
+                                <span className="flex items-center mr-2">
+                                    <User className="mr-2 h-4 w-4" />
+                                    Hola, {currentUser.username}
+                                </span>
+                                <Button
+                                    onClick={() => setCurrentView(currentView === 'home' ? 'publications' : 'home')}
+                                    className="bg-blue-500 hover:bg-blue-700 text-white"
+                                >
+                                    {currentView === 'home' ? 'Mis Publicaciones' : 'Inicio'}
+                                </Button>
                                 <Dialog open={isProfileDialogOpen} onOpenChange={setIsProfileDialogOpen}>
                                     <DialogTrigger asChild>
                                         <Button className="bg-blue-500 hover:bg-blue-700 text-white">
@@ -334,7 +370,9 @@ export default function UPBlioteca() {
                                                     <Input
                                                         id="profile-new-password"
                                                         type="password"
-                                                        {...register("newPassword")}
+                                                        {...register("newPassword", {
+                                                            validate: (value) => !value || validatePassword(value) === null
+                                                        })}
                                                         className="col-span-3"
                                                     />
                                                 </div>
@@ -381,7 +419,9 @@ export default function UPBlioteca() {
                                                     <Input
                                                         id="register-password"
                                                         type="password"
-                                                        {...register("password", { required: true, minLength: 6 })}
+                                                        {...register("password", {
+                                                            required: true
+                                                        })}
                                                         className="col-span-3"
                                                     />
                                                 </div>
@@ -463,12 +503,8 @@ export default function UPBlioteca() {
             <main className="flex-grow container mx-auto px-4 py-8">
                 <Card className="w-full bg-white shadow-lg">
                     <CardContent>
-                        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                            <TabsList className="grid w-full grid-cols-2">
-                                <TabsTrigger value="home">Inicio</TabsTrigger>
-                                <TabsTrigger value="publications">Mis Publicaciones</TabsTrigger>
-                            </TabsList>
-                            <TabsContent value="home">
+                        {currentView === 'home' ? (
+                            <>
                                 <div className="mb-8 relative">
                                     <div className="overflow-hidden rounded-lg bg-blue-100 p-6" style={{ height: "calc(100% * 1.25)" }}>
                                         <h2 className="text-2xl font-bold text-blue-800 mb-2">{sliderContent[sliderIndex].title}</h2>
@@ -514,7 +550,7 @@ export default function UPBlioteca() {
                                                         className="mr-2"
                                                         onClick={() => handlePublicationClick(pub)}
                                                     >
-                                                        <FileText className="mr-4 h-4 w-4" />
+                                                        <FileText className="mr-2 h-4 w-4" />
                                                         Ver documento
                                                     </Button>
                                                     <Button
@@ -601,103 +637,107 @@ export default function UPBlioteca() {
                                         </Button>
                                     ))}
                                 </div>
-                            </TabsContent>
-                            <TabsContent value="publications">
-                                {currentUser ? (
-                                    <div className="space-y-6">
-                                        <h3 className="text-xl font-semibold text-blue-800">Crear nueva publicación</h3>
-                                        <form onSubmit={handleCreatePublication} className="space-y-4">
-                                            <div className="space-y-2">
-                                                <Label htmlFor="pub-name">Nombre del documento</Label>
-                                                <Input
-                                                    id="pub-name"
-                                                    value={newPublication.name}
-                                                    onChange={(e) => setNewPublication({...newPublication, name: e.target.value})}
-                                                    required
-                                                />
-                                            </div>
-                                            <div className="space-y-2">
-                                                <Label htmlFor="pub-subject">Materia</Label>
-                                                <Input
-                                                    id="pub-subject"
-                                                    value={newPublication.subject}
-                                                    onChange={(e) => setNewPublication({...newPublication, subject: e.target.value})}
-                                                    required
-                                                />
-                                            </div>
-                                            <div className="space-y-2">
-                                                <Label htmlFor="pub-university">Universidad</Label>
-                                                <Input
-                                                    id="pub-university"
-                                                    value={newPublication.university}
-                                                    onChange={(e) => setNewPublication({...newPublication, university: e.target.value})}
-                                                    required
-                                                />
-                                            </div>
-                                            <div className="space-y-2">
-                                                <Label htmlFor="pub-file">Archivo del documento</Label>
-                                                <Input
-                                                    id="pub-file"
-                                                    type="file"
-                                                    accept=".pdf,.doc,.docx"
-                                                    onChange={(e) => {
-                                                        const file = e.target.files ? e.target.files[0] : null
-                                                        if (file) {
+                            </>
+                        ) : (
+                            currentUser ? (
+                                <div className="space-y-6">
+                                    <h3 className="text-xl font-semibold text-blue-800">Crear nueva publicación</h3>
+                                    <form onSubmit={handleCreatePublication} className="space-y-4">
+                                        <div className="space-y-2">
+                                            <Label htmlFor="pub-name">Nombre del documento</Label>
+                                            <Input
+                                                id="pub-name"
+                                                value={newPublication.name}
+                                                onChange={(e) => setNewPublication({...newPublication, name: e.target.value})}
+                                                required
+                                            />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label htmlFor="pub-subject">Materia</Label>
+                                            <Input
+                                                id="pub-subject"
+                                                value={newPublication.subject}
+                                                onChange={(e) => setNewPublication({...newPublication, subject: e.target.value})}
+                                                required
+                                            />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label htmlFor="pub-university">Universidad</Label>
+                                            <Input
+                                                id="pub-university"
+                                                value={newPublication.university}
+                                                onChange={(e) => setNewPublication({...newPublication, university: e.target.value})}
+                                                required
+                                            />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label htmlFor="pub-file">Archivo del documento (solo PDF)</Label>
+                                            <Input
+                                                id="pub-file"
+                                                type="file"
+                                                accept=".pdf"
+                                                onChange={(e) => {
+                                                    const file = e.target.files ? e.target.files[0] : null
+                                                    if (file) {
+                                                        if (file.type !== 'application/pdf') {
+                                                            toast.error('Solo se permiten archivos PDF.')
+                                                            e.target.value = ''
+                                                        } else {
                                                             setNewPublication({...newPublication, file: file})
                                                         }
-                                                    }}
-                                                    required
-                                                />
-                                            </div>
-                                            <Button type="submit" className="w-full bg-blue-500 hover:bg-blue-700">Crear Publicación</Button>
-                                        </form>
-                                        <div className="mt-6">
-                                            <h3 className="text-xl font-semibold text-blue-800 mb-4">Mis publicaciones</h3>
-                                            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                                                {publications.filter(pub => pub.author.username === currentUser.username).map((pub) => (
-                                                    <Card key={pub.id} className="bg-blue-50">
-                                                        <CardHeader>
-                                                            <CardTitle className="text-blue-800">{pub.name}</CardTitle>
-                                                            <CardDescription className="text-blue-600">
-                                                                {pub.subject} - {pub.university}
-                                                            </CardDescription>
-                                                        </CardHeader>
-                                                        <CardContent>
-                                                            <div className="mt-2">
-                                                                <StarRating
-                                                                    rating={getAverageRating(pub.ratings)}
-                                                                    onRate={(rating) => handleRate(pub.id, rating)}
-                                                                />
-                                                            </div>
-                                                            <p className="text-sm text-blue-600 mt-1">Descargas: {pub.downloadCount}</p>
-                                                        </CardContent>
-                                                        <CardFooter>
-                                                            <Button
-                                                                variant="outline"
-                                                                className="mr-2"
-                                                                onClick={() => handlePublicationClick(pub)}
-                                                            >
-                                                                <FileText className="mr-2 h-4 w-4" />
-                                                                Ver documento
-                                                            </Button>
-                                                            <Button
-                                                                variant="outline"
-                                                                onClick={() => handleDownload(pub)}
-                                                            >
-                                                                <Download className="mr-2 h-4 w-4" />
-                                                                Descargar
-                                                            </Button>
-                                                        </CardFooter>
-                                                    </Card>
-                                                ))}
-                                            </div>
+                                                    }
+                                                }}
+                                                required
+                                            />
+                                        </div>
+                                        <Button type="submit" className="w-full bg-blue-500 hover:bg-blue-700">Crear Publicación</Button>
+                                    </form>
+                                    <div className="mt-6">
+                                        <h3 className="text-xl font-semibold text-blue-800 mb-4">Mis publicaciones</h3>
+                                        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                                            {publications.filter(pub => pub.author.username === currentUser.username).map((pub) => (
+                                                <Card key={pub.id} className="bg-blue-50">
+                                                    <CardHeader>
+                                                        <CardTitle className="text-blue-800">{pub.name}</CardTitle>
+                                                        <CardDescription className="text-blue-600">
+                                                            {pub.subject} - {pub.university}
+                                                        </CardDescription>
+                                                    </CardHeader>
+                                                    <CardContent>
+                                                        <div className="mt-2">
+                                                            <StarRating
+                                                                rating={getAverageRating(pub.ratings)}
+                                                                onRate={(rating) => handleRate(pub.id, rating)}
+                                                            />
+                                                        </div>
+                                                        <p className="text-sm text-blue-600 mt-1">Descargas: {pub.downloadCount}</p>
+                                                    </CardContent>
+                                                    <CardFooter>
+                                                        <Button
+                                                            variant="outline"
+                                                            className="mr-2"
+                                                            onClick={() => handlePublicationClick(pub)}
+                                                        >
+                                                            <FileText className="mr-2 h-4 w-4" />
+                                                            Ver documento
+                                                        </Button>
+                                                        <Button
+                                                            variant="outline"
+                                                            onClick={() => handleDownload(pub)}
+                                                        >
+                                                            <Download className="mr-2 h-4 w-4" />
+                                                            Descargar
+                                                        </Button>
+                                                    </CardFooter>
+                                                </Card>
+                                            ))}
                                         </div>
                                     </div>
-                                ) : (
-                                    <p className="text-blue-600">Por favor, inicia sesión para ver y crear publicaciones.</p>
-                                )}
-                            </TabsContent>
-                        </Tabs>
+                                </div>
+                            ) : (
+                                <p className="text-blue-600">Por favor, inicia sesión para ver y crear publicaciones.</p>
+                            )
+                        )}
                     </CardContent>
                 </Card>
             </main>
@@ -717,9 +757,9 @@ export default function UPBlioteca() {
                         <div>
                             <h3 className="text-lg font-semibold mb-2">Enlaces rápidos</h3>
                             <ul className="text-sm">
-                                <li><a href="#" className="hover:underline">Términos de servicio</a></li>
-                                <li><a href="#" className="hover:underline">Política de privacidad</a></li>
-                                <li><a href="#" className="hover:underline">FAQ</a></li>
+                                <li><Link href="#" className="hover:underline">Términos de servicio</Link></li>
+                                <li><Link href="#" className="hover:underline">Política de privacidad</Link></li>
+                                <li><Link href="#" className="hover:underline">FAQ</Link></li>
                             </ul>
                         </div>
                     </div>
