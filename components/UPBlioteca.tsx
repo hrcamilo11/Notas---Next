@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { User, Search, Star, FileText, Download } from 'lucide-react'
+import { User, Search, Star, FileText, Download, Edit } from 'lucide-react'
 import {
     Dialog,
     DialogContent,
@@ -202,6 +202,7 @@ export default function Component() {
 
     const handleAuthorClick = useCallback((author: User) => {
         setSelectedAuthor(author)
+        setCurrentView('profile')
     }, [])
 
     const handleDownload = useCallback((publication: Publication) => {
@@ -267,6 +268,7 @@ export default function Component() {
         }
     }, [currentUser, setValue])
 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     const debouncedSearch = useCallback(
         debounce((term: string) => {
             setSearchTerm(term)
@@ -313,74 +315,12 @@ export default function Component() {
                                 >
                                     {currentView === 'home' ? 'Mis Publicaciones' : 'Inicio'}
                                 </Button>
-                                <Dialog open={isProfileDialogOpen} onOpenChange={setIsProfileDialogOpen}>
-                                    <DialogTrigger asChild>
-                                        <Button className="bg-secondary hover:bg-secondary/90 text-secondary-foreground">
-                                            <User className="mr-2 h-4 w-4" /> Perfil
-                                        </Button>
-                                    </DialogTrigger>
-                                    <DialogContent className="sm:max-w-[425px]">
-                                        <DialogHeader>
-                                            <DialogTitle>Perfil de Usuario</DialogTitle>
-                                            <DialogDescription>
-                                                Edita tu información de perfil en UPBlioteca.
-                                            </DialogDescription>
-                                        </DialogHeader>
-                                        <form onSubmit={handleSubmit(handleEditProfile)}>
-                                            <div className="grid gap-4 py-4">
-                                                <div className="grid grid-cols-4 items-center gap-4">
-                                                    <Label htmlFor="profile-username" className="text-right">
-                                                        Usuario
-                                                    </Label>
-                                                    <Input
-                                                        id="profile-username"
-                                                        value={currentUser.username}
-                                                        className="col-span-3"
-                                                        disabled
-                                                    />
-                                                </div>
-                                                <div className="grid grid-cols-4 items-center gap-4">
-                                                    <Label htmlFor="profile-email" className="text-right">
-                                                        Email
-                                                    </Label>
-                                                    <Input
-                                                        id="profile-email"
-                                                        value={currentUser.email}
-                                                        className="col-span-3"
-                                                        disabled
-                                                    />
-                                                </div>
-                                                <div className="grid grid-cols-4 items-center gap-4">
-                                                    <Label htmlFor="profile-university" className="text-right">
-                                                        Universidad
-                                                    </Label>
-                                                    <Input
-                                                        id="profile-university"
-                                                        {...register("university")}
-                                                        defaultValue={currentUser.university}
-                                                        className="col-span-3"
-                                                    />
-                                                </div>
-                                                <div className="grid grid-cols-4 items-center gap-4">
-                                                    <Label htmlFor="profile-new-password" className="text-right">
-                                                        Nueva Contraseña
-                                                    </Label>
-                                                    <Input
-                                                        id="profile-new-password"
-                                                        type="password"
-                                                        {...register("newPassword", {
-                                                            validate: (value) => !value || validatePassword(value) === null
-                                                        })}
-                                                        className="col-span-3"
-                                                    />
-                                                </div>
-                                            </div>
-                                            <DialogFooter>
-                                                <Button type="submit">Guardar Cambios</Button>
-                                            </DialogFooter>
-                                        </form>
-                                    </DialogContent>
-                                </Dialog>
+                                <Button
+                                    onClick={() => handleAuthorClick(currentUser)}
+                                    className="bg-secondary hover:bg-secondary/90 text-secondary-foreground"
+                                >
+                                    Mi Perfil
+                                </Button>
                                 <Button onClick={handleLogout} className="bg-secondary hover:bg-secondary/90 text-secondary-foreground">
                                     Cerrar Sesión
                                 </Button>
@@ -501,7 +441,7 @@ export default function Component() {
             <main className="flex-grow container mx-auto px-4 py-8">
                 <Card className="w-full bg-card shadow-lg mx-auto px-1 py-4">
                     <CardContent>
-                        {currentView === 'home' ? (
+                        {currentView === 'home' && (
                             <>
                                 <div className="mb-8 relative">
                                     <div className="overflow-hidden rounded-lg bg-muted p-6" style={{ height: "calc(100% * 1.25)" }}>
@@ -636,105 +576,157 @@ export default function Component() {
                                     ))}
                                 </div>
                             </>
-                        ) : (
-                            currentUser ? (
-                                <div className="space-y-6">
-                                    <h3 className="text-xl font-semibold text-primary">Crear nueva publicación</h3>
-                                    <form onSubmit={handleCreatePublication} className="space-y-4">
-                                        <div className="space-y-2">
-                                            <Label htmlFor="pub-name">Nombre del documento</Label>
-                                            <Input
-                                                id="pub-name"
-                                                value={newPublication.name}
-                                                onChange={(e) => setNewPublication({...newPublication, name: e.target.value})}
-                                                required
-                                            />
-                                        </div>
-                                        <div className="space-y-2">
-                                            <Label htmlFor="pub-subject">Materia</Label>
-                                            <Input
-                                                id="pub-subject"
-                                                value={newPublication.subject}
-                                                onChange={(e) => setNewPublication({...newPublication, subject: e.target.value})}
-                                                required
-                                            />
-                                        </div>
-                                        <div className="space-y-2">
-                                            <Label htmlFor="pub-university">Universidad</Label>
-                                            <Input
-                                                id="pub-university"
-                                                value={newPublication.university}
-                                                onChange={(e) => setNewPublication({...newPublication, university: e.target.value})}
-                                                required
-                                            />
-                                        </div>
-                                        <div className="space-y-2">
-                                            <Label htmlFor="pub-file">Archivo del documento (solo PDF)</Label>
-                                            <Input
-                                                id="pub-file"
-                                                type="file"
-                                                accept=".pdf"
-                                                onChange={(e) => {
-                                                    const file = e.target.files ? e.target.files[0] : null
-                                                    if (file) {
-                                                        if (file.type !== 'application/pdf') {
-                                                            toast.error('Solo se permiten archivos PDF.')
-                                                            e.target.value = ''
-                                                        } else {
-                                                            setNewPublication({...newPublication, file: file})
-                                                        }
+                        )}
+                        {currentView === 'publications' && currentUser && (
+                            <div className="space-y-6">
+                                <h3 className="text-xl font-semibold text-primary">Crear nueva publicación</h3>
+                                <form onSubmit={handleCreatePublication} className="space-y-4">
+                                    <div className="space-y-2">
+                                        <Label htmlFor="pub-name">Nombre del documento</Label>
+                                        <Input
+                                            id="pub-name"
+                                            value={newPublication.name}
+                                            onChange={(e) => setNewPublication({...newPublication, name: e.target.value})}
+                                            required
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="pub-subject">Materia</Label>
+                                        <Input
+                                            id="pub-subject"
+                                            value={newPublication.subject}
+                                            onChange={(e) => setNewPublication({...newPublication, subject: e.target.value})}
+                                            required
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="pub-university">Universidad</Label>
+                                        <Input
+                                            id="pub-university"
+                                            value={newPublication.university}
+                                            onChange={(e) => setNewPublication({...newPublication, university: e.target.value})}
+                                            required
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="pub-file">Archivo del documento (solo PDF)</Label>
+                                        <Input
+                                            id="pub-file"
+                                            type="file"
+                                            accept=".pdf"
+                                            onChange={(e) => {
+                                                const file = e.target.files ? e.target.files[0] : null
+                                                if (file) {
+                                                    if (file.type !== 'application/pdf') {
+                                                        toast.error('Solo se permiten archivos PDF.')
+                                                        e.target.value = ''
+                                                    } else {
+                                                        setNewPublication({...newPublication, file: file})
                                                     }
-                                                }}
-                                                required
-                                            />
-                                        </div>
-                                        <Button type="submit" className="w-full bg-primary hover:bg-primary/90">Crear Publicación</Button>
-                                    </form>
-                                    <div className="mt-6">
-                                        <h3 className="text-xl font-semibold text-primary mb-4">Mis publicaciones</h3>
-                                        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                                            {publications.filter(pub => pub.author.username === currentUser.username).map((pub) => (
-                                                <Card key={pub.id} className="bg-card">
-                                                    <CardHeader>
-                                                        <CardTitle className="text-primary">{pub.name}</CardTitle>
-                                                        <CardDescription className="text-muted-foreground">
-                                                            {pub.subject} - {pub.university}
-                                                        </CardDescription>
-                                                    </CardHeader>
-                                                    <CardContent>
-                                                        <div className="mt-2">
-                                                            <StarRating
-                                                                rating={getAverageRating(pub.ratings)}
-                                                                onRate={(rating) => handleRate(pub.id, rating)}
-                                                            />
-                                                        </div>
-                                                        <p className="text-sm text-muted-foreground mt-1">Descargas: {pub.downloadCount}</p>
-                                                    </CardContent>
-                                                    <CardFooter>
-                                                        <Button
-                                                            variant="outline"
-                                                            className="mr-2"
-                                                            onClick={() => handlePublicationClick(pub)}
-                                                        >
-                                                            <FileText className="mr-2 h-4 w-4" />
-                                                            Ver documento
-                                                        </Button>
-                                                        <Button
-                                                            variant="outline"
-                                                            onClick={() => handleDownload(pub)}
-                                                        >
-                                                            <Download className="mr-2 h-4 w-4" />
-                                                            Descargar
-                                                        </Button>
-                                                    </CardFooter>
-                                                </Card>
-                                            ))}
-                                        </div>
+                                                }
+                                            }}
+                                            required
+                                        />
+                                    </div>
+                                    <Button type="submit" className="w-full bg-primary hover:bg-primary/90">Crear Publicación</Button>
+                                </form>
+                                <div className="mt-6">
+                                    <h3 className="text-xl font-semibold text-primary mb-4">Mis publicaciones</h3>
+                                    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                                        {publications.filter(pub => pub.author.username === currentUser.username).map((pub) => (
+                                            <Card key={pub.id} className="bg-card">
+                                                <CardHeader>
+                                                    <CardTitle className="text-primary">{pub.name}</CardTitle>
+                                                    <CardDescription className="text-muted-foreground">
+                                                        {pub.subject} - {pub.university}
+                                                    </CardDescription>
+                                                </CardHeader>
+                                                <CardContent>
+                                                    <div className="mt-2">
+                                                        <StarRating
+                                                            rating={getAverageRating(pub.ratings)}
+                                                            onRate={(rating) => handleRate(pub.id, rating)}
+                                                        />
+                                                    </div>
+                                                    <p className="text-sm text-muted-foreground mt-1">Descargas: {pub.downloadCount}</p>
+                                                </CardContent>
+                                                <CardFooter>
+                                                    <Button
+                                                        variant="outline"
+                                                        className="mr-2"
+                                                        onClick={() => handlePublicationClick(pub)}
+                                                    >
+                                                        <FileText className="mr-2 h-4 w-4" />
+                                                        Ver documento
+                                                    </Button>
+                                                    <Button
+                                                        variant="outline"
+                                                        onClick={() => handleDownload(pub)}
+                                                    >
+                                                        <Download className="mr-2 h-4 w-4" />
+                                                        Descargar
+                                                    </Button>
+                                                </CardFooter>
+                                            </Card>
+                                        ))}
                                     </div>
                                 </div>
-                            ) : (
-                                <p className="text-muted-foreground">Por favor, inicia sesión para ver y crear publicaciones.</p>
-                            )
+                            </div>
+                        )}
+                        {currentView === 'profile' && selectedAuthor && (
+                            <div className="space-y-6">
+                                <h3 className="text-xl font-semibold text-primary">Perfil de {selectedAuthor.username}</h3>
+                                <div className="space-y-4">
+                                    <p><strong>Email:</strong> {selectedAuthor.email}</p>
+                                    <p><strong>Universidad:</strong> {selectedAuthor.university}</p>
+                                </div>
+                                {selectedAuthor.username === currentUser?.username && (
+                                    <Button onClick={() => setIsProfileDialogOpen(true)} className="bg-primary hover:bg-primary/90">
+                                        <Edit className="mr-2 h-4 w-4" />
+                                        Actualizar Datos
+                                    </Button>
+                                )}
+                                <h4 className="text-lg font-sem
+ibold text-primary mt-8">Publicaciones de {selectedAuthor.username}</h4>
+                                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                                    {publications.filter(pub => pub.author.username === selectedAuthor.username).map((pub) => (
+                                        <Card key={pub.id} className="bg-card">
+                                            <CardHeader>
+                                                <CardTitle className="text-primary">{pub.name}</CardTitle>
+                                                <CardDescription className="text-muted-foreground">
+                                                    {pub.subject} - {pub.university}
+                                                </CardDescription>
+                                            </CardHeader>
+                                            <CardContent>
+                                                <div className="mt-2">
+                                                    <StarRating
+                                                        rating={getAverageRating(pub.ratings)}
+                                                        onRate={(rating) => handleRate(pub.id, rating)}
+                                                    />
+                                                </div>
+                                                <p className="text-sm text-muted-foreground mt-1">Descargas: {pub.downloadCount}</p>
+                                            </CardContent>
+                                            <CardFooter>
+                                                <Button
+                                                    variant="outline"
+                                                    className="mr-2"
+                                                    onClick={() => handlePublicationClick(pub)}
+                                                >
+                                                    <FileText className="mr-2 h-4 w-4" />
+                                                    Ver documento
+                                                </Button>
+                                                <Button
+                                                    variant="outline"
+                                                    onClick={() => handleDownload(pub)}
+                                                >
+                                                    <Download className="mr-2 h-4 w-4" />
+                                                    Descargar
+                                                </Button>
+                                            </CardFooter>
+                                        </Card>
+                                    ))}
+                                </div>
+                            </div>
                         )}
                     </CardContent>
                 </Card>
@@ -800,23 +792,70 @@ export default function Component() {
                 </Dialog>
             )}
 
-            {/* Modal para mostrar el perfil del autor */}
-            {selectedAuthor && (
-                <Dialog open={!!selectedAuthor} onOpenChange={() => setSelectedAuthor(null)}>
-                    <DialogContent className="sm:max-w-[425px]">
-                        <DialogHeader>
-                            <DialogTitle>Perfil de {selectedAuthor.username}</DialogTitle>
-                        </DialogHeader>
-                        <div className="mt-4">
-                            <p><strong>Email:</strong> {selectedAuthor.email}</p>
-                            <p><strong>Universidad:</strong> {selectedAuthor.university}</p>
+            {/* Modal para actualizar el perfil */}
+            <Dialog open={isProfileDialogOpen} onOpenChange={setIsProfileDialogOpen}>
+                <DialogContent className="sm:max-w-[425px]">
+                    <DialogHeader>
+                        <DialogTitle>Actualizar Perfil</DialogTitle>
+                        <DialogDescription>
+                            Actualiza tu información de perfil en UPBlioteca.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <form onSubmit={handleSubmit(handleEditProfile)}>
+                        <div className="grid gap-4 py-4">
+                            <div className="grid grid-cols-4 items-center gap-4">
+                                <Label htmlFor="profile-username" className="text-right">
+                                    Usuario
+                                </Label>
+                                <Input
+                                    id="profile-username"
+                                    value={currentUser?.username}
+                                    className="col-span-3"
+                                    disabled
+                                />
+                            </div>
+                            <div className="grid grid-cols-4 items-center gap-4">
+                                <Label htmlFor="profile-email" className="text-right">
+                                    Email
+                                </Label>
+                                <Input
+                                    id="profile-email"
+                                    value={currentUser?.email}
+                                    className="col-span-3"
+                                    disabled
+                                />
+                            </div>
+                            <div className="grid grid-cols-4 items-center gap-4">
+                                <Label htmlFor="profile-university" className="text-right">
+                                    Universidad
+                                </Label>
+                                <Input
+                                    id="profile-university"
+                                    {...register("university")}
+                                    defaultValue={currentUser?.university}
+                                    className="col-span-3"
+                                />
+                            </div>
+                            <div className="grid grid-cols-4 items-center gap-4">
+                                <Label htmlFor="profile-new-password" className="text-right">
+                                    Nueva Contraseña
+                                </Label>
+                                <Input
+                                    id="profile-new-password"
+                                    type="password"
+                                    {...register("newPassword", {
+                                        validate: (value) => !value || validatePassword(value) === null
+                                    })}
+                                    className="col-span-3"
+                                />
+                            </div>
                         </div>
                         <DialogFooter>
-                            <Button onClick={() => setSelectedAuthor(null)}>Cerrar</Button>
+                            <Button type="submit">Guardar Cambios</Button>
                         </DialogFooter>
-                    </DialogContent>
-                </Dialog>
-            )}
+                    </form>
+                </DialogContent>
+            </Dialog>
         </div>
     )
 }
