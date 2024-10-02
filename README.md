@@ -1,36 +1,133 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# UPBlioteca
 
-## Getting Started
+UPBlioteca es una plataforma web desarrollada en Next.js que permite a estudiantes universitarios compartir y encontrar documentos de estudio. La aplicación facilita el intercambio de recursos educativos entre la comunidad estudiantil.
 
-First, run the development server:
+## Características principales
 
+- 📚 Compartir y descargar documentos académicos
+- 🔍 Búsqueda de documentos por nombre, materia o universidad
+- ⭐ Sistema de calificación para documentos
+- 👤 Perfiles de usuario personalizables
+- 📊 Seguimiento de descargas
+- ✨ Sección de publicaciones destacadas
+
+## Tecnologías utilizadas
+
+- [Next.js](https://nextjs.org/) - Framework de React
+- [Tailwind CSS](https://tailwindcss.com/) - Framework de CSS
+- [Shadcn UI](https://ui.shadcn.com/) - Componentes de UI
+- [React Hook Form](https://react-hook-form.com/) - Manejo de formularios
+- [Lucide React](https://lucide.dev/) - Íconos
+- [React Toastify](https://fkhadra.github.io/react-toastify/) - Notificaciones
+
+## Requisitos previos
+
+- Node.js (versión 14 o superior)
+- npm o yarn
+
+## Instalación
+
+1. Clona el repositorio:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/hrcamilo11/Notas---Next.git
+cd upblioteca
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Instala las dependencias:
+```bash
+npm install
+# o
+yarn install
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. Instala los componentes de Shadcn UI necesarios:
+```bash
+npx shadcn-ui@latest add button
+npx shadcn-ui@latest add input
+npx shadcn-ui@latest add label
+npx shadcn-ui@latest add card
+npx shadcn-ui@latest add dialog
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+4. Crea un archivo `.env.local` y configura las variables de entorno necesarias:
+```
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+```
 
-## Learn More
+5. Inicia el servidor de desarrollo:
+```bash
+npm run dev
+# o
+yarn dev
+```
 
-To learn more about Next.js, take a look at the following resources:
+6. Abre [http://localhost:3000](http://localhost:3000) en tu navegador para ver la aplicación.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Scripts disponibles
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- `npm run dev` - Inicia el servidor de desarrollo
+- `npm run build` - Construye la aplicación para producción
+- `npm start` - Inicia el servidor de producción
+- `npm run lint` - Ejecuta el linter
 
-## Deploy on Vercel
+## Despliegue
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+La aplicación puede ser desplegada en varias plataformas. Aquí te mostramos cómo hacerlo en Vercel:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. Crea una cuenta en [Vercel](https://vercel.com) si aún no tienes una
+
+2. Instala la CLI de Vercel:
+```bash
+npm i -g vercel
+```
+
+3. Desde la raíz del proyecto, ejecuta:
+```bash
+vercel
+```
+
+4. Sigue las instrucciones en la terminal para completar el despliegue
+
+## Estructura del proyecto
+
+```
+upblioteca/
+├── app/
+│   ├── fonts/
+│   ├── globals.css
+│   ├── layout.tsx
+│   └── page.tsx
+├── components/
+│   ├── UPBlioteca.tsx
+│   └── ui/
+│       ├── button.tsx
+│       ├── card.tsx
+│       ├── dialog.tsx
+│       ├── input.tsx
+│       └── label.tsx
+├── lib/
+│   └── utils.ts
+├── .env.local
+├── next.config.js
+├── package.json
+├── README.md
+└── tailwind.config.js
+```
+
+## Contribuir
+
+1. Haz un fork del proyecto
+2. Crea una rama para tu feature (`git checkout -b feature/AmazingFeature`)
+3. Haz commit de tus cambios (`git commit -m 'Add some AmazingFeature'`)
+4. Haz push a la rama (`git push origin feature/AmazingFeature`)
+5. Abre un Pull Request
+
+## Licencia
+
+Este proyecto está bajo la Licencia MIT - ver el archivo [LICENSE.md](LICENSE.md) para más detalles.
+
+## Contacto
+
+Email: hrcamilo11@gmail.com
+
+Enlace del proyecto: [https://github.com/hrcamilo11/Notas---Next](https://github.com/hrcamilo11/Notas---Next)
