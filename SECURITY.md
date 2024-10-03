@@ -5,23 +5,24 @@
 Actualmente, las siguientes versiones de UPBlioteca están siendo soportadas con actualizaciones de seguridad:
 
 | Versión | Soportada          |
-| ------- | ------------------ |
+|---------|--------------------|
 | 1.0.x   | :white_check_mark: |
 | < 1.0   | :x:                |
 
 ## Reportando una Vulnerabilidad
 
-La seguridad de UPBlioteca es una prioridad para nosotros. Si has descubierto una vulnerabilidad de seguridad, apreciamos tu ayuda en divulgarlo de manera responsable.
+La seguridad de UPBlioteca es una prioridad para nosotros. Si has descubierto una vulnerabilidad de seguridad,
+apreciamos tu ayuda en divulgarlo de manera responsable.
 
 ### Proceso de Reporte
 
 1. **No reportes vulnerabilidades de seguridad a través de issues públicos de GitHub**
 
 2. Envía un correo electrónico a hrcamilo11@gmail.com con los siguientes detalles:
-   - Descripción de la vulnerabilidad
-   - Pasos para reproducir el problema
-   - Posible impacto de la vulnerabilidad
-   - Sugerencias para mitigar o solucionar el problema (si las tienes)
+    - Descripción de la vulnerabilidad
+    - Pasos para reproducir el problema
+    - Posible impacto de la vulnerabilidad
+    - Sugerencias para mitigar o solucionar el problema (si las tienes)
 
 3. Espera la confirmación de recepción de tu reporte. Nos esforzamos por responder dentro de las 48 horas.
 
@@ -30,11 +31,11 @@ La seguridad de UPBlioteca es una prioridad para nosotros. Si has descubierto un
 - Te enviaremos un acuse de recibo dentro de las 48 horas.
 - Te mantendremos informado sobre el progreso hacia la solución y el anuncio completo.
 - Si aceptamos la vulnerabilidad:
-  - Desarrollaremos una solución y la probaremos
-  - Lanzaremos un parche tan pronto como sea posible
-  - Te daremos crédito por el descubrimiento (si lo deseas)
+    - Desarrollaremos una solución y la probaremos
+    - Lanzaremos un parche tan pronto como sea posible
+    - Te daremos crédito por el descubrimiento (si lo deseas)
 - Si rechazamos la vulnerabilidad:
-  - Te proporcionaremos una explicación detallada
+    - Te proporcionaremos una explicación detallada
 
 ## Prácticas de Seguridad
 
@@ -67,13 +68,14 @@ La seguridad de UPBlioteca es una prioridad para nosotros. Si has descubierto un
 
 ## Historial de Vulnerabilidades
 
-| Vulnerabilidad | Versiones Afectadas | Solución | Referencia |
-|----------------|---------------------|----------|------------|
-| Ejemplo: XSS en búsqueda | < 1.0.1 | Actualizar a 1.0.1 | #123 |
+| Vulnerabilidad           | Versiones Afectadas | Solución           | Referencia |
+|--------------------------|---------------------|--------------------|------------|
+| Ejemplo: XSS en búsqueda | < 1.0.1             | Actualizar a 1.0.1 | #123       |
 
 ## Herramientas y Recursos
 
-- Utilizamos [GitHub Security Advisories](https://github.com/tu-usuario/upblioteca/security/advisories) para gestionar las vulnerabilidades
+- Utilizamos [GitHub Security Advisories](https://github.com/tu-usuario/upblioteca/security/advisories) para gestionar
+  las vulnerabilidades
 - Implementamos análisis de código automático con [GitHub CodeQL](https://codeql.github.com/)
 - Realizamos auditorías de seguridad regulares
 
@@ -86,6 +88,7 @@ Agradecemos a las siguientes personas por sus contribuciones a la seguridad de U
 ## Contacto
 
 Para asuntos generales de seguridad o preguntas sobre este documento:
+
 - Email: hrcamilo11@gmail.com
 - Equipo de seguridad: [Nombres de los miembros del equipo]
 

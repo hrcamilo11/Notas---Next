@@ -1,12 +1,12 @@
 'use client'
 
-import React, { useState, useEffect, useCallback } from 'react'
-import { useTranslation } from 'react-i18next'
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { User, Search, Star, FileText, Download, Edit, Globe } from 'lucide-react'
+import React, {useState, useEffect, useCallback} from 'react'
+import {useTranslation} from 'react-i18next'
+import {Button} from "@/components/ui/button"
+import {Input} from "@/components/ui/input"
+import {Label} from "@/components/ui/label"
+import {Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle} from "@/components/ui/card"
+import {User, Search, Star, FileText, Download, Edit, Globe} from 'lucide-react'
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -23,10 +23,10 @@ import {
     DialogTrigger,
 } from "@/components/ui/dialog"
 
-import { FieldValues, useForm } from 'react-hook-form'
-import { toast, ToastContainer } from 'react-toastify'
+import {FieldValues, useForm} from 'react-hook-form'
+import {toast, ToastContainer} from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
-import { debounce } from 'lodash'
+import {debounce} from 'lodash'
 import Link from 'next/link'
 import '../i18n'
 
@@ -54,7 +54,7 @@ type Publication = {
     downloadCount: number
 }
 
-const StarRating = React.memo(({ rating, onRate }: { rating: number, onRate: (rating: number) => void }) => {
+const StarRating = React.memo(({rating, onRate}: { rating: number, onRate: (rating: number) => void }) => {
     const [hover, setHover] = useState(0)
     return (
         <div className="flex items-center">
@@ -82,7 +82,7 @@ const StarRating = React.memo(({ rating, onRate }: { rating: number, onRate: (ra
 StarRating.displayName = 'StarRating'
 
 export default function Component() {
-    const { t, i18n } = useTranslation()
+    const {t, i18n} = useTranslation()
     const [users, setUsers] = useState<User[]>([])
     const [publications, setPublications] = useState<Publication[]>([])
     const [currentUser, setCurrentUser] = useState<User | null>(null)
@@ -97,7 +97,7 @@ export default function Component() {
     const [isProfileDialogOpen, setIsProfileDialogOpen] = useState(false)
     const publicationsPerPage = 6
 
-    const { register, handleSubmit, setValue, reset } = useForm()
+    const {register, handleSubmit, setValue, reset} = useForm()
 
     const [newPublication, setNewPublication] = useState<Omit<Publication, 'author' | 'id' | 'ratings' | 'downloadCount'>>({
         name: '',
@@ -117,13 +117,13 @@ export default function Component() {
     };
 
     const handleRegister = useCallback((data: FieldValues) => {
-        const { username, password, email, university } = data as User;
+        const {username, password, email, university} = data as User;
         const passwordError = validatePassword(password);
         if (passwordError) {
             return toast.error(passwordError);
         }
         const hashedPassword = btoa(password); // Note: This is not secure, use a proper hashing algorithm in production
-        const newUser = { username, password: hashedPassword, email, university };
+        const newUser = {username, password: hashedPassword, email, university};
         setUsers(prevUsers => [...prevUsers, newUser]);
         setCurrentUser(newUser);
         toast.success(t('messages.registrationSuccess'));
@@ -132,7 +132,7 @@ export default function Component() {
     }, [reset, t]);
 
     const handleLogin = useCallback((data: FieldValues) => {
-        const { username, password } = data as { username: string, password: string };
+        const {username, password} = data as { username: string, password: string };
         const user = users.find(u => u.username === username && u.password === btoa(password));
         if (user) {
             setCurrentUser(user);
@@ -168,7 +168,7 @@ export default function Component() {
                 downloadCount: 0
             }
             setPublications(prevPublications => [...prevPublications, newPub])
-            setNewPublication({ name: '', subject: '', university: '' })
+            setNewPublication({name: '', subject: '', university: ''})
             toast.success(t('messages.publicationCreated'))
         } else {
             toast.error(t('messages.loginRequired'))
@@ -176,9 +176,9 @@ export default function Component() {
     }, [currentUser, newPublication, t])
 
     const handleEditProfile = useCallback((data: FieldValues) => {
-        const { university, newPassword } = data as { university: string, newPassword?: string };
+        const {university, newPassword} = data as { university: string, newPassword?: string };
         if (currentUser) {
-            const updatedUser = { ...currentUser, university };
+            const updatedUser = {...currentUser, university};
             if (newPassword) {
                 const passwordError = validatePassword(newPassword);
                 if (passwordError) {
@@ -217,7 +217,7 @@ export default function Component() {
             setPublications(prevPublications =>
                 prevPublications.map(pub =>
                     pub.id === publication.id
-                        ? { ...pub, downloadCount: pub.downloadCount + 1 }
+                        ? {...pub, downloadCount: pub.downloadCount + 1}
                         : pub
                 )
             )
@@ -234,7 +234,7 @@ export default function Component() {
                     if (existingRatingIndex !== -1) {
                         pub.ratings[existingRatingIndex].rating = rating
                     } else {
-                        pub.ratings.push({ userId: currentUser.username, rating })
+                        pub.ratings.push({userId: currentUser.username, rating})
                     }
                 }
                 return pub
@@ -298,14 +298,15 @@ export default function Component() {
     };
 
     const sliderContent = [
-        { title: t('slider.welcome'), description: t('slider.welcomeDescription') },
-        { title: t('slider.shareNotes'), description: t('slider.shareNotesDescription') },
-        { title: t('slider.findResources'), description: t('slider.findResourcesDescription') },
+        {title: t('slider.welcome'), description: t('slider.welcomeDescription')},
+        {title: t('slider.shareNotes'), description: t('slider.shareNotesDescription')},
+        {title: t('slider.findResources'), description: t('slider.findResourcesDescription')},
     ]
 
     return (
         <div className="min-h-screen flex flex-col bg-background">
-            <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} newestOnTop={false} closeOnClick rtl={false} pauseOnFocusLoss draggable pauseOnHover />
+            <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} newestOnTop={false}
+                            closeOnClick rtl={false} pauseOnFocusLoss draggable pauseOnHover/>
             {/* Header */}
             <header className="w-full bg-primary text-primary-foreground py-4">
                 <div className="container mx-auto px-4 flex justify-between items-center">
@@ -314,7 +315,7 @@ export default function Component() {
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                                 <Button variant="outline" size="icon">
-                                    <Globe className="h-[1.2rem] w-[1.2rem]" />
+                                    <Globe className="h-[1.2rem] w-[1.2rem]"/>
                                     <span className="sr-only">Toggle language</span>
                                 </Button>
                             </DropdownMenuTrigger>
@@ -333,8 +334,8 @@ export default function Component() {
                         {currentUser ? (
                             <>
                                 <span className="flex items-center mr-2">
-                                    <User className="mr-2 h-4 w-4" />
-                                    {t('header.hello', { name: currentUser.username })}
+                                    <User className="mr-2 h-4 w-4"/>
+                                    {t('header.hello', {name: currentUser.username})}
                                 </span>
                                 <Button
                                     onClick={() => setCurrentView(currentView === 'home' ? 'publications' : 'home')}
@@ -348,7 +349,8 @@ export default function Component() {
                                 >
                                     {t('header.myProfile')}
                                 </Button>
-                                <Button onClick={handleLogout} className="bg-secondary hover:bg-secondary/90 text-secondary-foreground">
+                                <Button onClick={handleLogout}
+                                        className="bg-secondary hover:bg-secondary/90 text-secondary-foreground">
                                     {t('header.logout')}
                                 </Button>
                             </>
@@ -356,7 +358,8 @@ export default function Component() {
                             <>
                                 <Dialog open={isRegisterDialogOpen} onOpenChange={setIsRegisterDialogOpen}>
                                     <DialogTrigger asChild>
-                                        <Button className="bg-secondary hover:bg-secondary/90 text-secondary-foreground">{t('header.register')}</Button>
+                                        <Button
+                                            className="bg-secondary hover:bg-secondary/90 text-secondary-foreground">{t('header.register')}</Button>
                                     </DialogTrigger>
                                     <DialogContent className="sm:max-w-[425px]">
                                         <DialogHeader>
@@ -373,7 +376,7 @@ export default function Component() {
                                                     </Label>
                                                     <Input
                                                         id="register-username"
-                                                        {...register("username", { required: true })}
+                                                        {...register("username", {required: true})}
                                                         className="col-span-3"
                                                     />
                                                 </div>
@@ -397,7 +400,7 @@ export default function Component() {
                                                     <Input
                                                         id="register-email"
                                                         type="email"
-                                                        {...register("email", { required: true, pattern: /^\S+@\S+$/i })}
+                                                        {...register("email", {required: true, pattern: /^\S+@\S+$/i})}
                                                         className="col-span-3"
                                                     />
                                                 </div>
@@ -407,20 +410,22 @@ export default function Component() {
                                                     </Label>
                                                     <Input
                                                         id="register-university"
-                                                        {...register("university", { required: true })}
+                                                        {...register("university", {required: true})}
                                                         className="col-span-3"
                                                     />
                                                 </div>
                                             </div>
                                             <DialogFooter>
-                                                <Button type="submit" className="bg-primary hover:bg-primary/90">{t('dialogs.register.submit')}</Button>
+                                                <Button type="submit"
+                                                        className="bg-primary hover:bg-primary/90">{t('dialogs.register.submit')}</Button>
                                             </DialogFooter>
                                         </form>
                                     </DialogContent>
                                 </Dialog>
                                 <Dialog open={isLoginDialogOpen} onOpenChange={setIsLoginDialogOpen}>
                                     <DialogTrigger asChild>
-                                        <Button className="bg-secondary hover:bg-secondary/90 text-secondary-foreground">{t('header.login')}</Button>
+                                        <Button
+                                            className="bg-secondary hover:bg-secondary/90 text-secondary-foreground">{t('header.login')}</Button>
                                     </DialogTrigger>
                                     <DialogContent className="sm:max-w-[425px]">
                                         <DialogHeader>
@@ -437,7 +442,7 @@ export default function Component() {
                                                     </Label>
                                                     <Input
                                                         id="login-username"
-                                                        {...register("username", { required: true })}
+                                                        {...register("username", {required: true})}
                                                         className="col-span-3"
                                                     />
                                                 </div>
@@ -448,13 +453,14 @@ export default function Component() {
                                                     <Input
                                                         id="login-password"
                                                         type="password"
-                                                        {...register("password", { required: true })}
+                                                        {...register("password", {required: true})}
                                                         className="col-span-3"
                                                     />
                                                 </div>
                                             </div>
                                             <DialogFooter>
-                                                <Button type="submit" className="bg-primary hover:bg-primary/90">{t('dialogs.login.submit')}</Button>
+                                                <Button type="submit"
+                                                        className="bg-primary hover:bg-primary/90">{t('dialogs.login.submit')}</Button>
                                             </DialogFooter>
                                         </form>
                                     </DialogContent>
@@ -471,7 +477,8 @@ export default function Component() {
                         {currentView === 'home' && (
                             <>
                                 <div className="mb-8 relative">
-                                    <div className="overflow-hidden rounded-lg bg-muted p-6" style={{ height: "calc(100% * 1.25)" }}>
+                                    <div className="overflow-hidden rounded-lg bg-muted p-6"
+                                         style={{height: "calc(100% * 1.25)"}}>
                                         <h2 className="text-2xl font-bold text-primary mb-2">{sliderContent[sliderIndex].title}</h2>
                                         <p className="text-muted-foreground">{sliderContent[sliderIndex].description}</p>
                                     </div>
@@ -483,7 +490,7 @@ export default function Component() {
                                             <Card key={pub.id} className="bg-card">
                                                 <CardHeader>
                                                     <CardTitle className="text-primary flex items-center">
-                                                        <Star className="h-5 w-5 text-primary mr-2" />
+                                                        <Star className="h-5 w-5 text-primary mr-2"/>
                                                         {pub.name}
                                                     </CardTitle>
                                                     <CardDescription className="text-muted-foreground">
@@ -515,14 +522,14 @@ export default function Component() {
                                                         className="mr-2"
                                                         onClick={() => handlePublicationClick(pub)}
                                                     >
-                                                        <FileText className="mr-2 h-4 w-4" />
+                                                        <FileText className="mr-2 h-4 w-4"/>
                                                         {t('publications.viewDocument')}
                                                     </Button>
                                                     <Button
                                                         variant="outline"
                                                         onClick={() => handleDownload(pub)}
                                                     >
-                                                        <Download className="mr-2 h-4 w-4" />
+                                                        <Download className="mr-2 h-4 w-4"/>
                                                         {t('publications.download')}
                                                     </Button>
                                                 </CardFooter>
@@ -538,7 +545,7 @@ export default function Component() {
                                         className="flex-grow mr-2"
                                     />
                                     <Button className="bg-primary hover:bg-primary/90 text-primary-foreground">
-                                        <Search className="h-4 w-4 mr-2" />
+                                        <Search className="h-4 w-4 mr-2"/>
                                         {t('publications.searchButton')}
                                     </Button>
                                 </div>
@@ -577,14 +584,14 @@ export default function Component() {
                                                     className="mr-2"
                                                     onClick={() => handlePublicationClick(pub)}
                                                 >
-                                                    <FileText className="mr-2 h-4 w-4" />
+                                                    <FileText className="mr-2 h-4 w-4"/>
                                                     {t('publications.viewDocument')}
                                                 </Button>
                                                 <Button
                                                     variant="outline"
                                                     onClick={() => handleDownload(pub)}
                                                 >
-                                                    <Download className="mr-2 h-4 w-4" />
+                                                    <Download className="mr-2 h-4 w-4"/>
                                                     {t('publications.download')}
                                                 </Button>
                                             </CardFooter>
@@ -592,7 +599,7 @@ export default function Component() {
                                     ))}
                                 </div>
                                 <div className="mt-4 flex justify-center">
-                                    {Array.from({ length: Math.ceil(filteredPublications.length / publicationsPerPage) }, (_, i) => (
+                                    {Array.from({length: Math.ceil(filteredPublications.length / publicationsPerPage)}, (_, i) => (
                                         <Button
                                             key={i}
                                             onClick={() => paginate(i + 1)}
@@ -613,7 +620,10 @@ export default function Component() {
                                         <Input
                                             id="pub-name"
                                             value={newPublication.name}
-                                            onChange={(e) => setNewPublication({...newPublication, name: e.target.value})}
+                                            onChange={(e) => setNewPublication({
+                                                ...newPublication,
+                                                name: e.target.value
+                                            })}
                                             required
                                         />
                                     </div>
@@ -622,7 +632,10 @@ export default function Component() {
                                         <Input
                                             id="pub-subject"
                                             value={newPublication.subject}
-                                            onChange={(e) => setNewPublication({...newPublication, subject: e.target.value})}
+                                            onChange={(e) => setNewPublication({
+                                                ...newPublication,
+                                                subject: e.target.value
+                                            })}
                                             required
                                         />
                                     </div>
@@ -631,7 +644,10 @@ export default function Component() {
                                         <Input
                                             id="pub-university"
                                             value={newPublication.university}
-                                            onChange={(e) => setNewPublication({...newPublication, university: e.target.value})}
+                                            onChange={(e) => setNewPublication({
+                                                ...newPublication,
+                                                university: e.target.value
+                                            })}
                                             required
                                         />
                                     </div>
@@ -655,7 +671,8 @@ export default function Component() {
                                             required
                                         />
                                     </div>
-                                    <Button type="submit" className="w-full bg-primary hover:bg-primary/90">{t('createPublication.submit')}</Button>
+                                    <Button type="submit"
+                                            className="w-full bg-primary hover:bg-primary/90">{t('createPublication.submit')}</Button>
                                 </form>
                                 <div className="mt-6">
                                     <h3 className="text-xl font-semibold text-primary mb-4">{t('publications.myPublications')}</h3>
@@ -683,14 +700,14 @@ export default function Component() {
                                                         className="mr-2"
                                                         onClick={() => handlePublicationClick(pub)}
                                                     >
-                                                        <FileText className="mr-2 h-4 w-4" />
+                                                        <FileText className="mr-2 h-4 w-4"/>
                                                         {t('publications.viewDocument')}
                                                     </Button>
                                                     <Button
                                                         variant="outline"
                                                         onClick={() => handleDownload(pub)}
                                                     >
-                                                        <Download className="mr-2 h-4 w-4" />
+                                                        <Download className="mr-2 h-4 w-4"/>
                                                         {t('publications.download')}
                                                     </Button>
                                                 </CardFooter>
@@ -702,18 +719,19 @@ export default function Component() {
                         )}
                         {currentView === 'profile' && selectedAuthor && (
                             <div className="space-y-6">
-                                <h3 className="text-xl font-semibold text-primary">{t('profile.title', { name: selectedAuthor.username })}</h3>
+                                <h3 className="text-xl font-semibold text-primary">{t('profile.title', {name: selectedAuthor.username})}</h3>
                                 <div className="space-y-4">
                                     <p><strong>{t('profile.email')}:</strong> {selectedAuthor.email}</p>
                                     <p><strong>{t('profile.university')}:</strong> {selectedAuthor.university}</p>
                                 </div>
                                 {selectedAuthor.username === currentUser?.username && (
-                                    <Button onClick={() => setIsProfileDialogOpen(true)} className="bg-primary hover:bg-primary/90">
-                                        <Edit className="mr-2 h-4 w-4" />
+                                    <Button onClick={() => setIsProfileDialogOpen(true)}
+                                            className="bg-primary hover:bg-primary/90">
+                                        <Edit className="mr-2 h-4 w-4"/>
                                         {t('profile.updateData')}
                                     </Button>
                                 )}
-                                <h4 className="text-lg font-semibold text-primary mt-8">{t('profile.publications', { name: selectedAuthor.username })}</h4>
+                                <h4 className="text-lg font-semibold text-primary mt-8">{t('profile.publications', {name: selectedAuthor.username})}</h4>
                                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                                     {publications.filter(pub => pub.author.username === selectedAuthor.username).map((pub) => (
                                         <Card key={pub.id} className="bg-card">
@@ -738,14 +756,14 @@ export default function Component() {
                                                     className="mr-2"
                                                     onClick={() => handlePublicationClick(pub)}
                                                 >
-                                                    <FileText className="mr-2 h-4 w-4" />
+                                                    <FileText className="mr-2 h-4 w-4"/>
                                                     {t('publications.viewDocument')}
                                                 </Button>
                                                 <Button
                                                     variant="outline"
                                                     onClick={() => handleDownload(pub)}
                                                 >
-                                                    <Download className="mr-2 h-4 w-4" />
+                                                    <Download className="mr-2 h-4 w-4"/>
                                                     {t('publications.download')}
                                                 </Button>
                                             </CardFooter>
@@ -798,13 +816,13 @@ export default function Component() {
                         <div className="mt-4">
                             <h4 className="font-semibold mb-2">{t('publications.preview')}:</h4>
                             {selectedPublication.file ? (
-                                <div className="border rounded-lg overflow-hidden" style={{ height: '500px' }}>
+                                <div className="border rounded-lg overflow-hidden" style={{height: '500px'}}>
                                     <iframe
                                         src={URL.createObjectURL(selectedPublication.file) + '#page=1&view=FitH'}
                                         title={t('publications.preview')}
                                         width="100%"
                                         height="100%"
-                                        style={{ border: 'none' }}
+                                        style={{border: 'none'}}
                                     />
                                 </div>
                             ) : (

@@ -1,13 +1,14 @@
-# Creación de la Base de Datos    
-                                       
- La base de datos se compone de tres  
- colecciones principales: 
- - `users`   
- - `publications`
- - `ratings`          
+# Creación de la Base de Datos
 
- # Colección `users`               
-    
+La base de datos se compone de tres  
+colecciones principales:
+
+- `users`
+- `publications`
+- `ratings`
+
+# Colección `users`
+
 ```bash
 {                                    
    _id: ObjectId,                    
@@ -19,10 +20,9 @@
    updatedAt: Date                   
  }  
 ```                                   
-                                   
 
- # Colección `publications`        
-    
+# Colección `publications`
+
 ```bash
 {                                    
    _id: ObjectId,                    
@@ -42,10 +42,9 @@
    updatedAt: Date                  
 }  
 ```                                   
-                                   
 
- # Colección `ratings`             
-  
+# Colección `ratings`
+
 ```bash
 {                                    
    _id: ObjectId,                    
@@ -56,36 +55,43 @@
    updatedAt: Date                   
 } 
 ```                                       
-                                    
 
- # Consideraciones sobre la estructura 
-                                       
- ### Se utiliza `ObjectId` para los campos 
-   `_id`, que MongoDB genera automáticamente. 
- ### Los campos `createdAt` y `updatedAt` ayudan 
-   a rastrear cuándo se crearon y actualizaron 
-   por última vez los documentos.          
- ### En la colección `publications`, el campo  
-   `author` es una referencia al `_id` del  
-   usuario en la colección `users`.        
- ### El campo `file` en `publications` contiene 
-   metadatos sobre el archivo PDF. El archivo 
-   en sí se guardará en GridFS.            
- ### La colección `ratings` está separada de  
-   `publications` para permitir un mejor    
-   rendimiento y escalabilidad.          
+# Consideraciones sobre la estructura
 
- # Creación de las colecciones en MongoDB 
- 
+### Se utiliza `ObjectId` para los campos
+
+`_id`, que MongoDB genera automáticamente.
+
+### Los campos `createdAt` y `updatedAt` ayudan
+
+a rastrear cuándo se crearon y actualizaron
+por última vez los documentos.
+
+### En la colección `publications`, el campo
+
+`author` es una referencia al `_id` del  
+usuario en la colección `users`.
+
+### El campo `file` en `publications` contiene
+
+metadatos sobre el archivo PDF. El archivo
+en sí se guardará en GridFS.
+
+### La colección `ratings` está separada de
+
+`publications` para permitir un mejor    
+rendimiento y escalabilidad.
+
+# Creación de las colecciones en MongoDB
+
 ```bash
 db.createCollection("users")          
 db.createCollection("publications")    
 db.createCollection("ratings")        
 ```                                        
-  
 
- # Creación de índices               
-  
+# Creación de índices
+
 ```bash
 db.users.createIndex(             { username: 1 },                    { unique: true })                   
 db.users.createIndex(            { email: 1 },                       { unique: true })                   

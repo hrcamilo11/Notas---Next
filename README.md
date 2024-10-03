@@ -1,6 +1,7 @@
 # UPBlioteca
 
-UPBlioteca es una plataforma web desarrollada en Next.js que permite a estudiantes universitarios compartir y encontrar documentos de estudio. La aplicación facilita el intercambio de recursos educativos entre la comunidad estudiantil.
+UPBlioteca es una plataforma web desarrollada en Next.js que permite a estudiantes universitarios compartir y encontrar
+documentos de estudio. La aplicación facilita el intercambio de recursos educativos entre la comunidad estudiantil.
 
 ## Características principales
 
@@ -26,6 +27,7 @@ UPBlioteca es una plataforma web desarrollada en Next.js que permite a estudiant
 - `npm run build` - Construye la aplicación para producción
 - `npm start` - Inicia el servidor de producción
 - `npm run lint` - Ejecuta el linter
+
 ## Requisitos previos
 
 - Node.js (versión 14 o superior)
@@ -34,12 +36,14 @@ UPBlioteca es una plataforma web desarrollada en Next.js que permite a estudiant
 ## Instalación
 
 1. Clona el repositorio:
+
 ```bash
 git clone https://github.com/hrcamilo11/Notas---Next.git
 cd upblioteca
 ```
 
 2. Instala las dependencias:
+
 ```bash
 npm install
 # o
@@ -47,6 +51,7 @@ yarn install
 ```
 
 3. Instala los componentes de Shadcn UI necesarios:
+
 ```bash
 npx shadcn-ui@latest add button
 npx shadcn-ui@latest add input
@@ -56,11 +61,13 @@ npx shadcn-ui@latest add dialog
 ```
 
 4. Crea un archivo `.env.local` y configura las variables de entorno necesarias:
+
 ```
 NEXT_PUBLIC_APP_URL=http://localhost:3000
 ```
 
 5. Inicia el servidor de desarrollo:
+
 ```bash
 npm run dev
 # o
@@ -69,7 +76,6 @@ yarn dev
 
 6. Abre [http://localhost:3000](http://localhost:3000) en tu navegador para ver la aplicación.
 
-
 ## Despliegue
 
 La aplicación puede ser desplegada en varias plataformas. Aquí te mostramos cómo hacerlo en Vercel:
@@ -77,11 +83,13 @@ La aplicación puede ser desplegada en varias plataformas. Aquí te mostramos c�
 1. Crea una cuenta en [Vercel](https://vercel.com) si aún no tienes una
 
 2. Instala la CLI de Vercel:
+
 ```bash
 npm i -g vercel
 ```
 
 3. Desde la raíz del proyecto, ejecuta:
+
 ```bash
 vercel
 ```
