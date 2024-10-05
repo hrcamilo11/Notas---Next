@@ -1,0 +1,103 @@
+{
+  "header": {
+    "title": "UPBlioteca",
+    "register": "Register",
+    "login": "Log In",
+    "logout": "Log Out",
+    "myPublications": "My Publications",
+    "home": "Home",
+    "myProfile": "My Profile",
+    "hello": "Hello, {{name}}"
+  },
+  "slider": {
+    "welcome": "Welcome to UPBlioteca",
+    "welcomeDescription": "Your platform to share and find study documents.",
+    "shareNotes": "Share your notes",
+    "shareNotesDescription": "Help other students by sharing your best study materials.",
+    "findResources": "Find valuable resources",
+    "findResourcesDescription": "Access a wide variety of documents shared by the community."
+  },
+  "publications": {
+    "featured": "Featured Publications",
+    "recent": "Recent Documents",
+    "search": "Search publications...",
+    "searchButton": "Search",
+    "author": "Author",
+    "downloads": "Downloads",
+    "viewDocument": "View document",
+    "download": "Download",
+    "myPublications": "My publications",
+    "preview": "Document preview"
+  },
+  "createPublication": {
+    "title": "Create new publication",
+    "name": "Document name",
+    "subject": "Subject",
+    "university": "University",
+    "file": "Document file (PDF only)",
+    "submit": "Create Publication"
+  },
+  "profile": {
+    "title": "{{name}}'s Profile",
+    "email": "Email",
+    "university": "University",
+    "updateData": "Update Data",
+    "publications": "{{name}}'s Publications"
+  },
+  "footer": {
+    "about": "About UPBlioteca",
+    "aboutDescription": "UPBlioteca is a platform for sharing and finding study documents among university students.",
+    "contact": "Contact",
+    "phone": "Phone",
+    "quickLinks": "Quick Links",
+    "termsOfService": "Terms of Service",
+    "privacyPolicy": "Privacy Policy",
+    "faq": "FAQ",
+    "rights": "All rights reserved."
+  },
+  "dialogs": {
+    "register": {
+      "title": "Register",
+      "description": "Create a new account on UPBlioteca.",
+      "username": "Username",
+      "password": "Password",
+      "email": "Email",
+      "university": "University",
+      "submit": "Register"
+    },
+    "login": {
+      "title": "Log In",
+      "description": "Log in to your UPBlioteca account.",
+      "username": "Username",
+      "password": "Password",
+      "submit": "Log In"
+    },
+    "updateProfile": {
+      "title": "Update Profile",
+      "description": "Update your profile information on UPBlioteca.",
+      "username": "Username",
+      "email": "Email",
+      "university": "University",
+      "newPassword": "New Password",
+      "submit": "Save Changes"
+    }
+  },
+  "messages": {
+    "passwordRequirements": "Password must be at least 8 characters long, include a number and a special character.",
+    "registrationSuccess": "User registered successfully",
+    "loginSuccess": "Login successful",
+    "incorrectCredentials": "Incorrect credentials",
+    "sessionClosed": "Session closed",
+    "loginRequired": "You must be logged in to create a publication",
+    "pdfOnly": "Only PDF files are allowed.",
+    "publicationCreated": "Publication created successfully",
+    "ratingSuccess": "Rating saved",
+    "loginToRate": "You must be logged in to rate",
+    "noFileToDownload": "No file available for download",
+    "noFileToPreview": "No file available for preview.",
+    "profileUpdated": "Profile updated successfully"
+  },
+  "common": {
+    "close": "Close"
+  }
+}

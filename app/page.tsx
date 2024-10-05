@@ -1,5 +1,5 @@
-import TextileDashboard from "@/components/Dashboard";
+import UPBlioteca from '@/components/UPBlioteca'
 
 export default function Home() {
-    return <TextileDashboard/>
+    return <UPBlioteca/>
 }

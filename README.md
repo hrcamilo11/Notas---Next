@@ -1,25 +1,25 @@
-# Tracktext
+# UPBlioteca
 
-Tracktext es una aplicación web desarrollada en React que permite a empresas textiles gestionar pedidos, clientes, producción e inventario. La plataforma facilita la administración eficiente de los procesos de producción y la comunicación entre diferentes roles dentro de la empresa.
+UPBlioteca es una plataforma web desarrollada en Next.js que permite a estudiantes universitarios compartir y encontrar
+documentos de estudio. La aplicación facilita el intercambio de recursos educativos entre la comunidad estudiantil.
 
 ## Características principales
 
-- 👤 Sistema de autenticación con roles (admin, empleado, cliente)
-- 📦 Gestión completa de pedidos (crear, ver, actualizar, eliminar)
-- 🏭 Control de producción con seguimiento de progreso
-- 👥 Gestión de clientes y empleados
-- 📊 Inventario y seguimiento de pedidos completados
-- 🔔 Sistema de notificaciones para eventos importantes
-- 📜 Historial de pedidos entregados
+- 📚 Compartir y descargar documentos académicos
+- 🔍 Búsqueda de documentos por nombre, materia o universidad
+- ⭐ Sistema de calificación para documentos
+- 👤 Perfiles de usuario personalizables
+- 📊 Seguimiento de descargas
+- ✨ Sección de publicaciones destacadas
 
 ## Tecnologías utilizadas
 
-- [React](https://reactjs.org/) - Biblioteca de JavaScript para construir interfaces de usuario
 - [Next.js](https://nextjs.org/) - Framework de React
-- [TypeScript](https://www.typescriptlang.org/) - Superset tipado de JavaScript
 - [Tailwind CSS](https://tailwindcss.com/) - Framework de CSS
 - [Shadcn UI](https://ui.shadcn.com/) - Componentes de UI
+- [React Hook Form](https://react-hook-form.com/) - Manejo de formularios
 - [Lucide React](https://lucide.dev/) - Íconos
+- [React Toastify](https://fkhadra.github.io/react-toastify/) - Notificaciones
 
 ## Scripts disponibles
 
@@ -38,8 +38,8 @@ Tracktext es una aplicación web desarrollada en React que permite a empresas te
 1. Clona el repositorio:
 
 ```bash
-git clone https://github.com/hrcamilo11/Tracktext.git
-cd Tracktext
+git clone https://github.com/hrcamilo11/Notas---Next.git
+cd upblioteca
 ```
 
 2. Instala las dependencias:
@@ -58,15 +58,12 @@ npx shadcn-ui@latest add input
 npx shadcn-ui@latest add label
 npx shadcn-ui@latest add card
 npx shadcn-ui@latest add dialog
-npx shadcn-ui@latest add select
-npx shadcn-ui@latest add checkbox
-npx shadcn-ui@latest add progress
 ```
 
 4. Crea un archivo `.env.local` y configura las variables de entorno necesarias:
 
 ```
-NEXT_PUBLIC_API_URL=http://tu-api-url.com
+NEXT_PUBLIC_APP_URL=http://localhost:3000
 ```
 
 5. Inicia el servidor de desarrollo:
@@ -102,23 +99,20 @@ vercel
 ## Estructura del proyecto
 
 ```
-textil-dashboard/
+upblioteca/
 ├── app/
 │   ├── fonts/
 │   ├── globals.css
 │   ├── layout.tsx
 │   └── page.tsx
 ├── components/
-│   ├── Dashboard.tsx
+│   ├── UPBlioteca.tsx
 │   └── ui/
 │       ├── button.tsx
 │       ├── card.tsx
 │       ├── dialog.tsx
 │       ├── input.tsx
-│       ├── label.tsx
-│       ├── select.tsx
-│       ├── checkbox.tsx
-│       └── progress.tsx
+│       └── label.tsx
 ├── lib/
 │   └── utils.ts
 ├── .env.local
@@ -127,22 +121,6 @@ textil-dashboard/
 ├── README.md
 └── tailwind.config.js
 ```
-
-## Uso
-
-1. Inicia sesión con las credenciales predeterminadas:
-   - Admin: usuario `admin`, contraseña `admin`
-   - Empleado: usuario `employee`, contraseña `employee`
-   - Cliente: usuario `client`, contraseña `client`
-
-2. Explora las diferentes secciones del dashboard según tu rol:
-   - Pedidos: Gestiona y visualiza todos los pedidos
-   - Clientes: Administra la información de los clientes (solo admin y empleados)
-   - Producción: Controla el progreso de los pedidos en producción
-   - Inventario: Gestiona los pedidos completados y listos para entrega
-   - Historial: Revisa los pedidos entregados
-   - Empleados: Gestiona los empleados (solo admin)
-   - Notificaciones: Revisa alertas importantes del sistema
 
 ## Contribuir
 
@@ -158,9 +136,6 @@ Este proyecto está bajo la Licencia MIT - ver el archivo [LICENSE.md](LICENSE.m
 
 ## Contacto
 
-Camilo Hernández - hrcamilo11@gmail.com
+Email: hrcamilo11@gmail.com
 
-Enlace del proyecto: [Tracktext](https://github.com/hrcamilo11/Tracktext)
-```
-
-Este README.md proporciona una descripción completa del proyecto Textil Dashboard, incluyendo sus características principales, tecnologías utilizadas, instrucciones de instalación y uso, estructura del proyecto, y información sobre cómo contribuir. Asegúrate de personalizar los detalles como el nombre de usuario de GitHub, información de contacto y enlaces específicos del proyecto antes de utilizarlo.
+Enlace del proyecto: [https://github.com/hrcamilo11/Notas---Next](https://github.com/hrcamilo11/Notas---Next)
