@@ -1,13 +1,13 @@
 'use client'
 
-import React, {useState, useEffect, useCallback} from 'react'
-import axios from 'axios';
-import {useTranslation} from 'react-i18next'
-import {Button} from "@/components/ui/button"
-import {Input} from "@/components/ui/input"
-import {Label} from "@/components/ui/label"
-import {Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle} from "@/components/ui/card"
-import {User, Search, Star, FileText, Download, Edit, Globe} from 'lucide-react'
+import React, { useState, useEffect, useCallback } from 'react'
+import axios from 'axios'
+import { useTranslation } from 'react-i18next'
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { User, Search, Star, FileText, Download, Edit, Globe } from 'lucide-react'
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -24,15 +24,15 @@ import {
     DialogTrigger,
 } from "@/components/ui/dialog"
 
-import {FieldValues, useForm} from 'react-hook-form'
-import {toast, ToastContainer} from 'react-toastify'
+import { FieldValues, useForm } from 'react-hook-form'
+import { toast, ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
-import {debounce} from 'lodash'
+import { debounce } from 'lodash'
 import Link from 'next/link'
 import '../i18n'
 
 type User = {
-    id:string
+    id: string
     username: string
     password: string
     email: string
@@ -49,19 +49,17 @@ type Publication = {
     name: string
     subject: string
     university: string
-    author: User
+    author: User | null
     featured?: boolean
     file?: File
     ratings: Rating[]
     downloadCount: number
 }
 
+const API_USER = 'http://localhost:5000/api/users'
+const API_PUBLICATION = 'http://localhost:5000/api/publications'
 
-const API_BASE_URL = 'http://localhost:5000/api/users'; // endpoint usuarios
-
-
-
-const StarRating = React.memo(({rating, onRate}: { rating: number, onRate: (rating: number) => void }) => {
+const StarRating = React.memo(({ rating, onRate }: { rating: number, onRate: (rating: number) => void }) => {
     const [hover, setHover] = useState(0)
     return (
         <div className="flex items-center">
@@ -89,8 +87,7 @@ const StarRating = React.memo(({rating, onRate}: { rating: number, onRate: (rati
 StarRating.displayName = 'StarRating'
 
 export default function Component() {
-    const {t, i18n} = useTranslation()
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { t, i18n } = useTranslation()
     const [users, setUsers] = useState<User[]>([])
     const [publications, setPublications] = useState<Publication[]>([])
     const [currentUser, setCurrentUser] = useState<User | null>(null)
@@ -105,7 +102,7 @@ export default function Component() {
     const [isProfileDialogOpen, setIsProfileDialogOpen] = useState(false)
     const publicationsPerPage = 6
 
-    const {register, handleSubmit, setValue, reset} = useForm()
+    const { register, handleSubmit, setValue, reset } = useForm()
 
     const [newPublication, setNewPublication] = useState<Omit<Publication, 'author' | 'id' | 'ratings' | 'downloadCount'>>({
         name: '',
@@ -114,96 +111,93 @@ export default function Component() {
     })
 
     const validatePassword = (password: string) => {
-        const minLength = 8;
-        const hasNumber = /\d/.test(password);
-        const hasSpecialChar = /[.*\-\/!@#$%^&(){}[\]:;<>,?~_+=|\\]/.test(password);
+        const minLength = 8
+        const hasNumber = /\d/.test(password)
+        const hasSpecialChar = /[.*\-\/!@#$%^&(){}[\]:;<>,?~_+=|\\]/.test(password)
 
         if (password.length < minLength || !hasNumber || !hasSpecialChar) {
-            return t('messages.passwordRequirements');
+            return t('messages.passwordRequirements')
         }
-        return null;
-    };
+        return null
+    }
 
     const handleRegister = useCallback(async (data: FieldValues) => {
-        const { username, password, email, university } = data as User;
-        const passwordError = validatePassword(password);
+        const { username, password, email, university } = data as User
+        const passwordError = validatePassword(password)
         if (passwordError) {
-            return toast.error(passwordError);
+            return toast.error(passwordError)
         }
-        const hashedPassword = btoa(password); // Recuerda que esto no es seguro
+        const hashedPassword = btoa(password) // Recuerda que esto no es seguro
 
         try {
-            const response = await axios.post(`${API_BASE_URL}/register`, {
+            const response = await axios.post(`${API_USER}/register`, {
                 username,
                 password: hashedPassword,
                 email,
                 university,
-            });
-            const newUser  = response.data;
-            setUsers(prevUsers => [...prevUsers, newUser ]);
-            setCurrentUser (newUser );
-            toast.success(t('messages.registrationSuccess'));
-            setIsRegisterDialogOpen(false);
-            reset();
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            })
+            const newUser = response.data
+            setCurrentUser(newUser)
+            toast.success(t('messages.registrationSuccess'))
+            setIsRegisterDialogOpen(false)
+            reset()
         } catch (error) {
-            toast.error(t('messages.registrationFailed'));
+            toast.error(t('messages.registrationFailed'))
         }
-    }, [reset, t]);
+    }, [reset, t])
 
     const handleLogin = useCallback(async (data: FieldValues) => {
-        const { username, password } = data as { username: string, password: string };
-        const hashedPassword = btoa(password); // Recuerda que esto no es seguro
+        const { username, password } = data as { username: string, password: string }
+        const hashedPassword = btoa(password)
 
         try {
-            const response = await axios.post(`${API_BASE_URL}/login`, {
+            const response = await axios.post(`${API_USER}/login`, {
                 username,
                 password: hashedPassword,
-            });
-            const user = response.data;
-            setCurrentUser (user);
-            setCurrentView('home');
-            setIsLoginDialogOpen(false);
-            toast.success(t('messages.loginSuccess'));
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            })
+            const user = response.data
+            setCurrentUser(user)
+            setCurrentView('home')
+            setIsLoginDialogOpen(false)
+            toast.success(t('messages.loginSuccess'))
+            reset()
         } catch (error) {
-            toast.error(t('messages.incorrectCredentials'));
+            toast.error(t('messages.incorrectCredentials'))
         }
-    }, [t]);
+    }, [t])
 
     const handleLogout = useCallback(() => {
-        setCurrentUser (null);
-        setCurrentView('home');
-        toast.info(t('messages.sessionClosed'));
-    }, [t]);
+        setCurrentUser(null)
+        setCurrentView('home')
+        toast.info(t('messages.sessionClosed'))
+    }, [t])
 
     const handleEditProfile = useCallback(async (data: FieldValues) => {
-        const { university, newPassword } = data as { university: string, newPassword?: string };
-        if (currentUser ) {
-            const updatedUser  = { ...currentUser , university };
+        const { university, newPassword } = data as { university: string, newPassword?: string }
+        if (currentUser) {
+            const updatedUser = { ...currentUser, university }
             if (newPassword) {
-                const passwordError = validatePassword(newPassword);
+                const passwordError = validatePassword(newPassword)
                 if (passwordError) {
-                    toast.error(passwordError);
-                    return;
+                    toast.error(passwordError)
+                    return
                 }
-                updatedUser .password = btoa(newPassword); // Recuerda que esto no es seguro
+                updatedUser.password = btoa(newPassword) // Recuerda que esto no es seguro
             }
 
             try {
-                await axios.put(`${API_BASE_URL}/${currentUser.id}`, updatedUser );
-                setUsers(prevUsers => prevUsers.map(u => u.username === currentUser .username ? updatedUser  : u));
-                setCurrentUser (updatedUser );
-                toast.success(t('messages.profileUpdated'));
-                setIsProfileDialogOpen(false);
-                // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                await axios.put(`${API_USER}/${currentUser.id}`, updatedUser)
+                setUsers(prevUsers => prevUsers.map(u => u.id === currentUser.id ? updatedUser : u))
+                setCurrentUser(updatedUser)
+                toast.success(t('messages.profileUpdated'))
+                setIsProfileDialogOpen(false)
             } catch (error) {
-                toast.error(t('messages.profileUpdateFailed'));
+                toast.error(t('messages.profileUpdateFailed'))
             }
         }
-    }, [currentUser , t]);
+    }, [currentUser, t])
 
-    const handleCreatePublication = useCallback((e: React.FormEvent) => {
+    const handleCreatePublication = useCallback(async (e: React.FormEvent) => {
         e.preventDefault()
         if (currentUser) {
             const fileInput = document.getElementById('pub-file') as HTMLInputElement
@@ -212,69 +206,81 @@ export default function Component() {
                 toast.error(t('messages.pdfOnly'))
                 return
             }
-            const newPub: Publication = {
-                ...newPublication,
-                author: currentUser,
-                id: Date.now().toString(),
-                file: file || undefined,
-                ratings: [],
-                downloadCount: 0
+            const formData = new FormData()
+            formData.append('name', newPublication.name)
+            formData.append('subject', newPublication.subject)
+            formData.append('university', newPublication.university)
+            formData.append('authorId', currentUser.id)
+            if (file) {
+                formData.append('file', file)
             }
-            setPublications(prevPublications => [...prevPublications, newPub])
-            setNewPublication({name: '', subject: '', university: ''})
-            toast.success(t('messages.publicationCreated'))
+            try {
+                const response = await axios.post(API_PUBLICATION, formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data'
+                    }
+                })
+                const newPub = response.data
+                setPublications(prevPublications => [...prevPublications, newPub])
+                setNewPublication({ name: '', subject: '', university: '' })
+                toast.success(t('messages.publicationCreated'))
+            } catch (error) {
+                toast.error(t('messages.publicationCreationFailed'))
+            }
         } else {
             toast.error(t('messages.loginRequired'))
         }
     }, [currentUser, newPublication, t])
 
-
     const handlePublicationClick = useCallback((publication: Publication) => {
         setSelectedPublication(publication)
     }, [])
 
-    const handleAuthorClick = useCallback((author: User) => {
-        setSelectedAuthor(author)
-        setCurrentView('profile')
-    }, [])
-
-    const handleDownload = useCallback((publication: Publication) => {
-        if (publication.file) {
-            const url = URL.createObjectURL(publication.file)
-            const a = document.createElement('a')
-            a.href = url
-            a.download = publication.file.name
-            document.body.appendChild(a)
-            a.click()
-            document.body.removeChild(a)
-            URL.revokeObjectURL(url)
-
-            setPublications(prevPublications =>
-                prevPublications.map(pub =>
-                    pub.id === publication.id
-                        ? {...pub, downloadCount: pub.downloadCount + 1}
-                        : pub
-                )
-            )
+    const handleAuthorClick = useCallback((author: User | null) => {
+        if (author) {
+            setSelectedAuthor(author)
+            setCurrentView('profile')
         } else {
-            toast.error(t('messages.noFileToDownload'))
+            toast.error(t('messages.authorNotAvailable'))
         }
     }, [t])
 
-    const handleRate = useCallback((publicationId: string, rating: number) => {
+    const handleDownload = useCallback(async (publication: Publication) => {
+        try {
+            await axios.post(`${API_PUBLICATION}/${publication.id}/download`)
+            setPublications(prevPublications =>
+                prevPublications.map(pub =>
+                    pub.id === publication.id
+                        ? { ...pub, downloadCount: pub.downloadCount + 1 }
+                        : pub
+                )
+            )
+            // Aquí iría la lógica para descargar el archivo
+            toast.success(t('messages.downloadStarted'))
+        } catch (error) {
+            toast.error(t('messages.downloadFailed'))
+        }
+    }, [t])
+
+    const handleRate = useCallback(async (publicationId: string, rating: number) => {
         if (currentUser) {
-            setPublications(publications.map(pub => {
-                if (pub.id === publicationId) {
-                    const existingRatingIndex = pub.ratings.findIndex(r => r.userId === currentUser.username)
-                    if (existingRatingIndex !== -1) {
-                        pub.ratings[existingRatingIndex].rating = rating
-                    } else {
-                        pub.ratings.push({userId: currentUser.username, rating})
+            try {
+                await axios.post(`${API_PUBLICATION}/${publicationId}/rate`, { userId: currentUser.id, rating })
+                setPublications(publications.map(pub => {
+                    if (pub.id === publicationId) {
+                        const existingRatingIndex = pub.ratings.findIndex(r => r.userId === currentUser.id)
+                        if (existingRatingIndex !== -1) {
+                            pub.ratings[existingRatingIndex].rating = rating
+                        } else {
+                            pub.ratings.push({ userId: currentUser.id, rating })
+                        }
                     }
-                }
-                return pub
-            }))
-            toast.success(t('messages.ratingSuccess'))
+                    return pub
+                }))
+                toast.success(t('messages.ratingSuccess'))
+            } catch (error) {
+                toast.error(t('messages.ratingFailed'))
+            }
         } else {
             toast.error(t('messages.loginToRate'))
         }
@@ -286,22 +292,6 @@ export default function Component() {
         return sum / ratings.length
     }, [])
 
-    useEffect(() => {
-        const timer = setInterval(() => {
-            setSliderIndex((prevIndex) => (prevIndex + 1) % sliderContent.length)
-        }, 5000)
-        return () => clearInterval(timer)
-    }, [])
-
-    useEffect(() => {
-        if (currentUser) {
-            setValue("username", currentUser.username)
-            setValue("email", currentUser.email)
-            setValue("university", currentUser.university)
-        }
-    }, [currentUser, setValue])
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     const debouncedSearch = useCallback(
         debounce((term: string) => {
             setSearchTerm(term)
@@ -326,17 +316,32 @@ export default function Component() {
 
     const paginate = useCallback((pageNumber: number) => setCurrentPage(pageNumber), [])
 
-    const featuredPublications = publications.filter(pub => pub.featured).slice(0, 3)
+    const featuredPublications = publications
+        .filter(pub => pub.featured && pub.author)
+        .slice(0, 3)
 
     const changeLanguage = (lng: string) => {
-        i18n.changeLanguage(lng);
-    };
+        i18n.changeLanguage(lng)
+    }
 
     const sliderContent = [
-        {title: t('slider.welcome'), description: t('slider.welcomeDescription')},
-        {title: t('slider.shareNotes'), description: t('slider.shareNotesDescription')},
-        {title: t('slider.findResources'), description: t('slider.findResourcesDescription')},
+        { title: t('slider.welcome'), description: t('slider.welcomeDescription') },
+        { title: t('slider.shareNotes'), description: t('slider.shareNotesDescription') },
+        { title: t('slider.findResources'), description: t('slider.findResourcesDescription') },
     ]
+
+    useEffect(() => {
+        const fetchPublications = async () => {
+            try {
+                const response = await axios.get(API_PUBLICATION)
+                setPublications(response.data)
+            } catch (error) {
+                toast.error(t('messages.failedToFetchPublications'))
+            }
+        }
+
+        fetchPublications()
+    }, [t])
 
     return (
         <div className="min-h-screen flex flex-col bg-background">
@@ -368,11 +373,12 @@ export default function Component() {
                             </DropdownMenuContent>
                         </DropdownMenu>
                         {currentUser ? (
+
                             <>
-                                <span className="flex items-center mr-2">
-                                    <User className="mr-2 h-4 w-4"/>
-                                    {t('header.hello', {name: currentUser.username})}
-                                </span>
+                <span className="flex items-center mr-2">
+                  <User className="mr-2 h-4 w-4"/>
+                    {t('header.hello', { name: currentUser.username })}
+                </span>
                                 <Button
                                     onClick={() => setCurrentView(currentView === 'home' ? 'publications' : 'home')}
                                     className="bg-secondary hover:bg-secondary/90 text-secondary-foreground"
@@ -412,7 +418,7 @@ export default function Component() {
                                                     </Label>
                                                     <Input
                                                         id="register-username"
-                                                        {...register("username", {required: true})}
+                                                        {...register("username", { required: true })}
                                                         className="col-span-3"
                                                     />
                                                 </div>
@@ -436,7 +442,7 @@ export default function Component() {
                                                     <Input
                                                         id="register-email"
                                                         type="email"
-                                                        {...register("email", {required: true, pattern: /^\S+@\S+$/i})}
+                                                        {...register("email", { required: true, pattern: /^\S+@\S+$/i })}
                                                         className="col-span-3"
                                                     />
                                                 </div>
@@ -446,7 +452,7 @@ export default function Component() {
                                                     </Label>
                                                     <Input
                                                         id="register-university"
-                                                        {...register("university", {required: true})}
+                                                        {...register("university", { required: true })}
                                                         className="col-span-3"
                                                     />
                                                 </div>
@@ -478,7 +484,7 @@ export default function Component() {
                                                     </Label>
                                                     <Input
                                                         id="login-username"
-                                                        {...register("username", {required: true})}
+                                                        {...register("username", { required: true })}
                                                         className="col-span-3"
                                                     />
                                                 </div>
@@ -489,7 +495,7 @@ export default function Component() {
                                                     <Input
                                                         id="login-password"
                                                         type="password"
-                                                        {...register("password", {required: true})}
+                                                        {...register("password", { required: true })}
                                                         className="col-span-3"
                                                     />
                                                 </div>
@@ -514,7 +520,7 @@ export default function Component() {
                             <>
                                 <div className="mb-8 relative">
                                     <div className="overflow-hidden rounded-lg bg-muted p-6"
-                                         style={{height: "calc(100% * 1.25)"}}>
+                                         style={{ height: "calc(100% * 1.25)" }}>
                                         <h2 className="text-2xl font-bold text-primary mb-2">{sliderContent[sliderIndex].title}</h2>
                                         <p className="text-muted-foreground">{sliderContent[sliderIndex].description}</p>
                                     </div>
@@ -536,13 +542,17 @@ export default function Component() {
                                                 <CardContent>
                                                     <p className="text-primary">
                                                         {t('publications.author')}:
-                                                        <Button
-                                                            variant="link"
-                                                            className="p-0 h-auto font-normal"
-                                                            onClick={() => handleAuthorClick(pub.author)}
-                                                        >
-                                                            {pub.author.username}
-                                                        </Button>
+                                                        {pub.author ? (
+                                                            <Button
+                                                                variant="link"
+                                                                className="p-0 h-auto font-normal"
+                                                                onClick={() => handleAuthorClick(pub.author)}
+                                                            >
+                                                                {pub.author.username}
+                                                            </Button>
+                                                        ) : (
+                                                            <span className="text-muted-foreground">{t('publications.unknownAuthor')}</span>
+                                                        )}
                                                     </p>
                                                     <div className="mt-2">
                                                         <StarRating
@@ -598,13 +608,17 @@ export default function Component() {
                                             <CardContent>
                                                 <p className="text-primary">
                                                     {t('publications.author')}:
-                                                    <Button
-                                                        variant="link"
-                                                        className="p-0 h-auto font-normal"
-                                                        onClick={() => handleAuthorClick(pub.author)}
-                                                    >
-                                                        {pub.author.username}
-                                                    </Button>
+                                                    {pub.author ? (
+                                                        <Button
+                                                            variant="link"
+                                                            className="p-0 h-auto font-normal"
+                                                            onClick={() => handleAuthorClick(pub.author)}
+                                                        >
+                                                            {pub.author.username}
+                                                        </Button>
+                                                    ) : (
+                                                        <span className="text-muted-foreground">{t('publications.unknownAuthor')}</span>
+                                                    )}
                                                 </p>
                                                 <div className="mt-2">
                                                     <StarRating
@@ -635,7 +649,7 @@ export default function Component() {
                                     ))}
                                 </div>
                                 <div className="mt-4 flex justify-center">
-                                    {Array.from({length: Math.ceil(filteredPublications.length / publicationsPerPage)}, (_, i) => (
+                                    {Array.from({ length: Math.ceil(filteredPublications.length / publicationsPerPage) }, (_, i) => (
                                         <Button
                                             key={i}
                                             onClick={() => paginate(i + 1)}
@@ -700,7 +714,7 @@ export default function Component() {
                                                         toast.error(t('messages.pdfOnly'))
                                                         e.target.value = ''
                                                     } else {
-                                                        setNewPublication({...newPublication, file: file})
+                                                        setNewPublication({ ...newPublication, file: file })
                                                     }
                                                 }
                                             }}
@@ -713,7 +727,7 @@ export default function Component() {
                                 <div className="mt-6">
                                     <h3 className="text-xl font-semibold text-primary mb-4">{t('publications.myPublications')}</h3>
                                     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                                        {publications.filter(pub => pub.author.username === currentUser.username).map((pub) => (
+                                        {publications.filter(pub => pub.author && pub.author.id === currentUser.id).map((pub) => (
                                             <Card key={pub.id} className="bg-card">
                                                 <CardHeader>
                                                     <CardTitle className="text-primary">{pub.name}</CardTitle>
@@ -755,21 +769,11 @@ export default function Component() {
                         )}
                         {currentView === 'profile' && selectedAuthor && (
                             <div className="space-y-6">
-                                <h3 className="text-xl font-semibold text-primary">{t('profile.title', {name: selectedAuthor.username})}</h3>
-                                <div className="space-y-4">
-                                    <p><strong>{t('profile.email')}:</strong> {selectedAuthor.email}</p>
-                                    <p><strong>{t('profile.university')}:</strong> {selectedAuthor.university}</p>
-                                </div>
-                                {selectedAuthor.username === currentUser?.username && (
-                                    <Button onClick={() => setIsProfileDialogOpen(true)}
-                                            className="bg-primary hover:bg-primary/90">
-                                        <Edit className="mr-2 h-4 w-4"/>
-                                        {t('profile.updateData')}
-                                    </Button>
-                                )}
-                                <h4 className="text-lg font-semibold text-primary mt-8">{t('profile.publications', {name: selectedAuthor.username})}</h4>
+                                <h3 className="text-xl font-semibold text-primary">{t('profile.title', { name: selectedAuthor.username })}</h3>
+                                <p className="text-muted-foreground">{t('profile.university')}: {selectedAuthor.university}</p>
+                                <h4 className="text-lg font-semibold text-primary">{t('profile.publications')}</h4>
                                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                                    {publications.filter(pub => pub.author.username === selectedAuthor.username).map((pub) => (
+                                    {publications.filter(pub => pub.author && pub.author.id === selectedAuthor.id).map((pub) => (
                                         <Card key={pub.id} className="bg-card">
                                             <CardHeader>
                                                 <CardTitle className="text-primary">{pub.name}</CardTitle>
@@ -806,134 +810,135 @@ export default function Component() {
                                         </Card>
                                     ))}
                                 </div>
+                                {selectedAuthor.id === currentUser?.id && (
+                                    <Dialog open={isProfileDialogOpen} onOpenChange={setIsProfileDialogOpen}>
+                                        <DialogTrigger asChild>
+                                            <Button className="mt-4 bg-primary hover:bg-primary/90">
+                                                <Edit className="mr-2 h-4 w-4"/>
+                                                {t('profile.edit')}
+                                            </Button>
+                                        </DialogTrigger>
+                                        <DialogContent className="sm:max-w-[425px]">
+                                            <DialogHeader>
+                                                <DialogTitle>{t('dialogs.editProfile.title')}</DialogTitle>
+                                                <DialogDescription>
+                                                    {t('dialogs.editProfile.description')}
+                                                </DialogDescription>
+                                            </DialogHeader>
+                                            <form onSubmit={handleSubmit(handleEditProfile)}>
+                                                <div className="grid gap-4 py-4">
+                                                    <div className="grid grid-cols-4 items-center gap-4">
+                                                        <Label htmlFor="edit-username" className="text-right">
+                                                            {t('dialogs.editProfile.username')}
+                                                        </Label>
+                                                        <Input
+                                                            id="edit-username"
+                                                            {...register("username")}
+                                                            className="col-span-3"
+                                                            disabled
+                                                        />
+                                                    </div>
+                                                    <div className="grid grid-cols-4 items-center gap-4">
+                                                        <Label htmlFor="edit-email" className="text-right">
+                                                            {t('dialogs.editProfile.email')}
+                                                        </Label>
+                                                        <Input
+                                                            id="edit-email"
+                                                            type="email"
+                                                            {...register("email")}
+                                                            className="col-span-3"
+                                                            disabled
+                                                        />
+                                                    </div>
+                                                    <div className="grid grid-cols-4 items-center gap-4">
+                                                        <Label htmlFor="edit-university" className="text-right">
+                                                            {t('dialogs.editProfile.university')}
+                                                        </Label>
+                                                        <Input
+                                                            id="edit-university"
+                                                            {...register("university")}
+                                                            className="col-span-3"
+                                                        />
+                                                    </div>
+                                                    <div className="grid grid-cols-4 items-center gap-4">
+                                                        <Label htmlFor="edit-new-password" className="text-right">
+                                                            {t('dialogs.editProfile.newPassword')}
+                                                        </Label>
+                                                        <Input
+                                                            id="edit-new-password"
+                                                            type="password"
+                                                            {...register("newPassword")}
+                                                            className="col-span-3"
+                                                        />
+                                                    </div>
+                                                </div>
+                                                <DialogFooter>
+                                                    <Button type="submit"
+                                                            className="bg-primary hover:bg-primary/90">{t('dialogs.editProfile.submit')}</Button>
+                                                </DialogFooter>
+                                            </form>
+                                        </DialogContent>
+                                    </Dialog>
+                                )}
                             </div>
                         )}
                     </CardContent>
                 </Card>
             </main>
             {/* Footer */}
-            <footer className="bg-primary text-primary-foreground py-8">
-                <div className="container mx-auto px-4">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                        <div>
-                            <h3 className="text-lg font-semibold mb-2">{t('footer.about')}</h3>
-                            <p className="text-sm">{t('footer.aboutDescription')}</p>
-                        </div>
-                        <div>
-                            <h3 className="text-lg font-semibold mb-2">{t('footer.contact')}</h3>
-                            <p className="text-sm">Email: info@upblioteca.com</p>
-                            <p className="text-sm">{t('footer.phone')}: (123) 456-7890</p>
-                        </div>
-                        <div>
-                            <h3 className="text-lg font-semibold mb-2">{t('footer.quickLinks')}</h3>
-                            <ul className="text-sm">
-                                <li><Link href="#" className="hover:underline">{t('footer.termsOfService')}</Link></li>
-                                <li><Link href="#" className="hover:underline">{t('footer.privacyPolicy')}</Link></li>
-                                <li><Link href="#" className="hover:underline">{t('footer.faq')}</Link></li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div className="mt-8 text-center text-sm">
-                        <p>&copy; 2024 UPBlioteca. {t('footer.rights')}</p>
-                    </div>
+            <footer className="w-full bg-primary text-primary-foreground py-4 mt-8">
+                <div className="container mx-auto px-4 text-center">
+                    <p>&copy; 2023 UPBlioteca. {t('footer.rights')}</p>
                 </div>
             </footer>
-
-            {/* Modal para mostrar la previsualización del documento */}
-            {selectedPublication && (
-                <Dialog open={!!selectedPublication} onOpenChange={() => setSelectedPublication(null)}>
-                    <DialogContent className="sm:max-w-[800px]">
-                        <DialogHeader>
-                            <DialogTitle>{selectedPublication.name}</DialogTitle>
-                            <DialogDescription>
-                                {selectedPublication.subject} - {selectedPublication.university}
-                            </DialogDescription>
-                        </DialogHeader>
-                        <div className="mt-4">
-                            <h4 className="font-semibold mb-2">{t('publications.preview')}:</h4>
-                            {selectedPublication.file ? (
-                                <div className="border rounded-lg overflow-hidden" style={{height: '500px'}}>
-                                    <iframe
-                                        src={URL.createObjectURL(selectedPublication.file) + '#page=1&view=FitH'}
-                                        title={t('publications.preview')}
-                                        width="100%"
-                                        height="100%"
-                                        style={{border: 'none'}}
-                                    />
-                                </div>
-                            ) : (
-                                <p>{t('messages.noFileToPreview')}</p>
-                            )}
-                        </div>
-                        <DialogFooter>
-                            <Button onClick={() => setSelectedPublication(null)}>{t('common.close')}</Button>
-                        </DialogFooter>
-                    </DialogContent>
-                </Dialog>
-            )}
-
-            {/* Modal para actualizar el perfil */}
-            <Dialog open={isProfileDialogOpen} onOpenChange={setIsProfileDialogOpen}>
-                <DialogContent className="sm:max-w-[425px]">
+            {/* Modals */}
+            <Dialog open={!!selectedPublication} onOpenChange={() => setSelectedPublication(null)}>
+                <DialogContent className="sm:max-w-[600px]">
                     <DialogHeader>
-                        <DialogTitle>{t('dialogs.updateProfile.title')}</DialogTitle>
+                        <DialogTitle>{selectedPublication?.name}</DialogTitle>
                         <DialogDescription>
-                            {t('dialogs.updateProfile.description')}
+                            {selectedPublication?.subject} - {selectedPublication?.university}
                         </DialogDescription>
                     </DialogHeader>
-                    <form onSubmit={handleSubmit(handleEditProfile)}>
-                        <div className="grid gap-4 py-4">
-                            <div className="grid grid-cols-4 items-center gap-4">
-                                <Label htmlFor="profile-username" className="text-right">
-                                    {t('dialogs.updateProfile.username')}
-                                </Label>
-                                <Input
-                                    id="profile-username"
-                                    value={currentUser?.username}
-                                    className="col-span-3"
-                                    disabled
-                                />
-                            </div>
-                            <div className="grid grid-cols-4 items-center gap-4">
-                                <Label htmlFor="profile-email" className="text-right">
-                                    {t('dialogs.updateProfile.email')}
-                                </Label>
-                                <Input
-                                    id="profile-email"
-                                    value={currentUser?.email}
-                                    className="col-span-3"
-                                    disabled
-                                />
-                            </div>
-                            <div className="grid grid-cols-4 items-center gap-4">
-                                <Label htmlFor="profile-university" className="text-right">
-                                    {t('dialogs.updateProfile.university')}
-                                </Label>
-                                <Input
-                                    id="profile-university"
-                                    {...register("university")}
-                                    defaultValue={currentUser?.university}
-                                    className="col-span-3"
-                                />
-                            </div>
-                            <div className="grid grid-cols-4 items-center gap-4">
-                                <Label htmlFor="profile-new-password" className="text-right">
-                                    {t('dialogs.updateProfile.newPassword')}
-                                </Label>
-                                <Input
-                                    id="profile-new-password"
-                                    type="password"
-                                    {...register("newPassword", {
-                                        validate: (value) => !value || validatePassword(value) === null
-                                    })}
-                                    className="col-span-3"
-                                />
-                            </div>
+                    <div className="py-4">
+                        <p className="text-primary mb-2">
+                            {t('publications.author')}:
+                            {selectedPublication?.author ? (
+                                <Button
+                                    variant="link"
+                                    className="p-0 h-auto font-normal"
+                                    onClick={() => {
+                                        setSelectedPublication(null)
+                                        handleAuthorClick(selectedPublication.author)
+                                    }}
+                                >
+                                    {selectedPublication.author.username}
+                                </Button>
+                            ) : (
+                                <span className="text-muted-foreground">{t('publications.unknownAuthor')}</span>
+                            )}
+                        </p>
+                        <StarRating
+                            rating={getAverageRating(selectedPublication?.ratings || [])}
+                            onRate={(rating) => selectedPublication && handleRate(selectedPublication.id, rating)}
+                        />
+                        <p className="text-sm text-muted-foreground mt-1">
+                            {t('publications.downloads')}: {selectedPublication?.downloadCount}
+                        </p>
+                        {/* Aquí iría el visor de PDF */}
+                        <div className="mt-4 bg-muted p-4 rounded">
+                            {t('publications.pdfViewer')}
                         </div>
-                        <DialogFooter>
-                            <Button type="submit">{t('dialogs.updateProfile.submit')}</Button>
-                        </DialogFooter>
-                    </form>
+                    </div>
+                    <DialogFooter>
+                        <Button variant="outline" onClick={() => setSelectedPublication(null)}>
+                            {t('publications.close')}
+                        </Button>
+                        <Button onClick={() => selectedPublication && handleDownload(selectedPublication)}>
+                            <Download className="mr-2 h-4 w-4"/>
+                            {t('publications.download')}
+                        </Button>
+                    </DialogFooter>
                 </DialogContent>
             </Dialog>
         </div>
