@@ -152,12 +152,12 @@ export default function Component() {
     }, [reset, t]);
 
     const handleLogin = useCallback(async (data: FieldValues) => {
-        const { email, password } = data as { email: string, password: string };
+        const { username, password } = data as { username: string, password: string };
         const hashedPassword = btoa(password); // Recuerda que esto no es seguro
 
         try {
             const response = await axios.post(`${API_BASE_URL}/login`, {
-                email,
+                username,
                 password: hashedPassword,
             });
             const user = response.data;
