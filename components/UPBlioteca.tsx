@@ -28,15 +28,14 @@ import { FieldValues, useForm } from 'react-hook-form'
 import { toast, ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import { debounce } from 'lodash'
-import Link from 'next/link'
 import '../i18n'
 
 type User = {
     id: string
     username: string
-    password: string
     email: string
     university: string
+    password: string
 }
 
 type Rating = {
@@ -88,11 +87,9 @@ StarRating.displayName = 'StarRating'
 
 export default function Component() {
     const { t, i18n } = useTranslation()
-    const [users, setUsers] = useState<User[]>([])
     const [publications, setPublications] = useState<Publication[]>([])
     const [currentUser, setCurrentUser] = useState<User | null>(null)
     const [currentView, setCurrentView] = useState('home')
-    const [sliderIndex, setSliderIndex] = useState(0)
     const [searchTerm, setSearchTerm] = useState('')
     const [currentPage, setCurrentPage] = useState(1)
     const [selectedPublication, setSelectedPublication] = useState<Publication | null>(null)
@@ -127,16 +124,15 @@ export default function Component() {
         if (passwordError) {
             return toast.error(passwordError)
         }
-        const hashedPassword = btoa(password) // Recuerda que esto no es seguro
 
         try {
             const response = await axios.post(`${API_USER}/register`, {
                 username,
-                password: hashedPassword,
+                password,
                 email,
                 university,
             })
-            const newUser = response.data
+            const newUser = response.data.user
             setCurrentUser(newUser)
             toast.success(t('messages.registrationSuccess'))
             setIsRegisterDialogOpen(false)
@@ -148,15 +144,15 @@ export default function Component() {
 
     const handleLogin = useCallback(async (data: FieldValues) => {
         const { username, password } = data as { username: string, password: string }
-        const hashedPassword = btoa(password)
 
         try {
             const response = await axios.post(`${API_USER}/login`, {
                 username,
-                password: hashedPassword,
+                password,
             })
-            const user = response.data
+            const { user, token } = response.data
             setCurrentUser(user)
+            localStorage.setItem('token', token)
             setCurrentView('home')
             setIsLoginDialogOpen(false)
             toast.success(t('messages.loginSuccess'))
@@ -168,6 +164,7 @@ export default function Component() {
 
     const handleLogout = useCallback(() => {
         setCurrentUser(null)
+        localStorage.removeItem('token')
         setCurrentView('home')
         toast.info(t('messages.sessionClosed'))
     }, [t])
@@ -175,19 +172,21 @@ export default function Component() {
     const handleEditProfile = useCallback(async (data: FieldValues) => {
         const { university, newPassword } = data as { university: string, newPassword?: string }
         if (currentUser) {
-            const updatedUser = { ...currentUser, university }
+            const updatedFields: Partial<User> = { university }
             if (newPassword) {
                 const passwordError = validatePassword(newPassword)
                 if (passwordError) {
                     toast.error(passwordError)
                     return
                 }
-                updatedUser.password = btoa(newPassword) // Recuerda que esto no es seguro
+                updatedFields.password = newPassword
             }
 
             try {
-                await axios.put(`${API_USER}/${currentUser.id}`, updatedUser)
-                setUsers(prevUsers => prevUsers.map(u => u.id === currentUser.id ? updatedUser : u))
+                const response = await axios.put(`${API_USER}/${currentUser.id}`, updatedFields, {
+                    headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+                })
+                const updatedUser = response.data.user
                 setCurrentUser(updatedUser)
                 toast.success(t('messages.profileUpdated'))
                 setIsProfileDialogOpen(false)
@@ -217,7 +216,8 @@ export default function Component() {
             try {
                 const response = await axios.post(API_PUBLICATION, formData, {
                     headers: {
-                        'Content-Type': 'multipart/form-data'
+                        'Content-Type': 'multipart/form-data',
+                        Authorization: `Bearer ${localStorage.getItem('token')}`
                     }
                 })
                 const newPub = response.data
@@ -265,7 +265,9 @@ export default function Component() {
     const handleRate = useCallback(async (publicationId: string, rating: number) => {
         if (currentUser) {
             try {
-                await axios.post(`${API_PUBLICATION}/${publicationId}/rate`, { userId: currentUser.id, rating })
+                await axios.post(`${API_PUBLICATION}/${publicationId}/rate`, { userId: currentUser.id, rating }, {
+                    headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+                })
                 setPublications(publications.map(pub => {
                     if (pub.id === publicationId) {
                         const existingRatingIndex = pub.ratings.findIndex(r => r.userId === currentUser.id)
@@ -324,12 +326,6 @@ export default function Component() {
         i18n.changeLanguage(lng)
     }
 
-    const sliderContent = [
-        { title: t('slider.welcome'), description: t('slider.welcomeDescription') },
-        { title: t('slider.shareNotes'), description: t('slider.shareNotesDescription') },
-        { title: t('slider.findResources'), description: t('slider.findResourcesDescription') },
-    ]
-
     useEffect(() => {
         const fetchPublications = async () => {
             try {
@@ -373,12 +369,11 @@ export default function Component() {
                             </DropdownMenuContent>
                         </DropdownMenu>
                         {currentUser ? (
-
                             <>
-                <span className="flex items-center mr-2">
-                  <User className="mr-2 h-4 w-4"/>
-                    {t('header.hello', { name: currentUser.username })}
-                </span>
+                                <span className="flex items-center mr-2">
+                                  <User className="mr-2 h-4 w-4"/>
+                                    {t('header.hello', { name: currentUser.username })}
+                                </span>
                                 <Button
                                     onClick={() => setCurrentView(currentView === 'home' ? 'publications' : 'home')}
                                     className="bg-secondary hover:bg-secondary/90 text-secondary-foreground"
@@ -398,7 +393,7 @@ export default function Component() {
                             </>
                         ) : (
                             <>
-                                <Dialog open={isRegisterDialogOpen} onOpenChange={setIsRegisterDialogOpen}>
+                                <Dialog  open={isRegisterDialogOpen} onOpenChange={setIsRegisterDialogOpen}>
                                     <DialogTrigger asChild>
                                         <Button
                                             className="bg-secondary hover:bg-secondary/90 text-secondary-foreground">{t('header.register')}</Button>
@@ -518,71 +513,6 @@ export default function Component() {
                     <CardContent>
                         {currentView === 'home' && (
                             <>
-                                <div className="mb-8 relative">
-                                    <div className="overflow-hidden rounded-lg bg-muted p-6"
-                                         style={{ height: "calc(100% * 1.25)" }}>
-                                        <h2 className="text-2xl font-bold text-primary mb-2">{sliderContent[sliderIndex].title}</h2>
-                                        <p className="text-muted-foreground">{sliderContent[sliderIndex].description}</p>
-                                    </div>
-                                </div>
-                                <div className="mb-8">
-                                    <h3 className="text-xl font-semibold text-primary mb-4">{t('publications.featured')}</h3>
-                                    <div className="grid gap-4 md:grid-cols-3">
-                                        {featuredPublications.map((pub) => (
-                                            <Card key={pub.id} className="bg-card">
-                                                <CardHeader>
-                                                    <CardTitle className="text-primary flex items-center">
-                                                        <Star className="h-5 w-5 text-primary mr-2"/>
-                                                        {pub.name}
-                                                    </CardTitle>
-                                                    <CardDescription className="text-muted-foreground">
-                                                        {pub.subject} - {pub.university}
-                                                    </CardDescription>
-                                                </CardHeader>
-                                                <CardContent>
-                                                    <p className="text-primary">
-                                                        {t('publications.author')}:
-                                                        {pub.author ? (
-                                                            <Button
-                                                                variant="link"
-                                                                className="p-0 h-auto font-normal"
-                                                                onClick={() => handleAuthorClick(pub.author)}
-                                                            >
-                                                                {pub.author.username}
-                                                            </Button>
-                                                        ) : (
-                                                            <span className="text-muted-foreground">{t('publications.unknownAuthor')}</span>
-                                                        )}
-                                                    </p>
-                                                    <div className="mt-2">
-                                                        <StarRating
-                                                            rating={getAverageRating(pub.ratings)}
-                                                            onRate={(rating) => handleRate(pub.id, rating)}
-                                                        />
-                                                    </div>
-                                                    <p className="text-sm text-muted-foreground mt-1">{t('publications.downloads')}: {pub.downloadCount}</p>
-                                                </CardContent>
-                                                <CardFooter>
-                                                    <Button
-                                                        variant="outline"
-                                                        className="mr-2"
-                                                        onClick={() => handlePublicationClick(pub)}
-                                                    >
-                                                        <FileText className="mr-2 h-4 w-4"/>
-                                                        {t('publications.viewDocument')}
-                                                    </Button>
-                                                    <Button
-                                                        variant="outline"
-                                                        onClick={() => handleDownload(pub)}
-                                                    >
-                                                        <Download className="mr-2 h-4 w-4"/>
-                                                        {t('publications.download')}
-                                                    </Button>
-                                                </CardFooter>
-                                            </Card>
-                                        ))}
-                                    </div>
-                                </div>
                                 <div className="mb-4 flex items-center">
                                     <Input
                                         type="text"
@@ -785,7 +715,7 @@ export default function Component() {
                                                 <div className="mt-2">
                                                     <StarRating
                                                         rating={getAverageRating(pub.ratings)}
-                                                        onRate={(rating) => handleRate(pub.id, rating)}
+                                                        onRate={(rating) => handleRate(pub.id,rating)}
                                                     />
                                                 </div>
                                                 <p className="text-sm text-muted-foreground mt-1">{t('publications.downloads')}: {pub.downloadCount}</p>
