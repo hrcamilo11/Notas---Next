@@ -349,9 +349,10 @@ export default function Component() {
                     <div className="flex items-center space-x-4">
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                                <Button variant="outline" size="icon">
-                                    <Globe className="h-[1.2rem] w-[1.2rem]"/>
-                                    <span className="sr-only">Toggle language</span>
+                                <Button
+                                    className="bg-secondary hover:bg-secondary/90 text-secondary-foreground"
+                                >
+                                    <Globe className="h-4 w-4"/>
                                 </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
