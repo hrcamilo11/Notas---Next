@@ -1,6 +1,7 @@
 'use client'
 
 import React, {useState, useEffect, useCallback} from 'react'
+import axios from 'axios';
 import {useTranslation} from 'react-i18next'
 import {Button} from "@/components/ui/button"
 import {Input} from "@/components/ui/input"
@@ -31,6 +32,7 @@ import Link from 'next/link'
 import '../i18n'
 
 type User = {
+    id:string
     username: string
     password: string
     email: string
@@ -53,6 +55,11 @@ type Publication = {
     ratings: Rating[]
     downloadCount: number
 }
+
+
+const API_BASE_URL = 'http://localhost:5000/api/users'; // endpoint usuarios
+
+
 
 const StarRating = React.memo(({rating, onRate}: { rating: number, onRate: (rating: number) => void }) => {
     const [hover, setHover] = useState(0)
@@ -83,6 +90,7 @@ StarRating.displayName = 'StarRating'
 
 export default function Component() {
     const {t, i18n} = useTranslation()
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [users, setUsers] = useState<User[]>([])
     const [publications, setPublications] = useState<Publication[]>([])
     const [currentUser, setCurrentUser] = useState<User | null>(null)
@@ -116,39 +124,84 @@ export default function Component() {
         return null;
     };
 
-    const handleRegister = useCallback((data: FieldValues) => {
-        const {username, password, email, university} = data as User;
+    const handleRegister = useCallback(async (data: FieldValues) => {
+        const { username, password, email, university } = data as User;
         const passwordError = validatePassword(password);
         if (passwordError) {
             return toast.error(passwordError);
         }
-        const hashedPassword = btoa(password); // Note: This is not secure, use a proper hashing algorithm in production
-        const newUser = {username, password: hashedPassword, email, university};
-        setUsers(prevUsers => [...prevUsers, newUser]);
-        setCurrentUser(newUser);
-        toast.success(t('messages.registrationSuccess'));
-        setIsRegisterDialogOpen(false);
-        reset();
+        const hashedPassword = btoa(password); // Recuerda que esto no es seguro
+
+        try {
+            const response = await axios.post(`${API_BASE_URL}/register`, {
+                username,
+                password: hashedPassword,
+                email,
+                university,
+            });
+            const newUser  = response.data;
+            setUsers(prevUsers => [...prevUsers, newUser ]);
+            setCurrentUser (newUser );
+            toast.success(t('messages.registrationSuccess'));
+            setIsRegisterDialogOpen(false);
+            reset();
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        } catch (error) {
+            toast.error(t('messages.registrationFailed'));
+        }
     }, [reset, t]);
 
-    const handleLogin = useCallback((data: FieldValues) => {
-        const {username, password} = data as { username: string, password: string };
-        const user = users.find(u => u.username === username && u.password === btoa(password));
-        if (user) {
-            setCurrentUser(user);
+    const handleLogin = useCallback(async (data: FieldValues) => {
+        const { email, password } = data as { email: string, password: string };
+        const hashedPassword = btoa(password); // Recuerda que esto no es seguro
+
+        try {
+            const response = await axios.post(`${API_BASE_URL}/login`, {
+                email,
+                password: hashedPassword,
+            });
+            const user = response.data;
+            setCurrentUser (user);
             setCurrentView('home');
             setIsLoginDialogOpen(false);
             toast.success(t('messages.loginSuccess'));
-        } else {
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        } catch (error) {
             toast.error(t('messages.incorrectCredentials'));
         }
-    }, [users, t]);
+    }, [t]);
 
     const handleLogout = useCallback(() => {
-        setCurrentUser(null)
-        setCurrentView('home')
-        toast.info(t('messages.sessionClosed'))
-    }, [t])
+        setCurrentUser (null);
+        setCurrentView('home');
+        toast.info(t('messages.sessionClosed'));
+    }, [t]);
+
+    const handleEditProfile = useCallback(async (data: FieldValues) => {
+        const { university, newPassword } = data as { university: string, newPassword?: string };
+        if (currentUser ) {
+            const updatedUser  = { ...currentUser , university };
+            if (newPassword) {
+                const passwordError = validatePassword(newPassword);
+                if (passwordError) {
+                    toast.error(passwordError);
+                    return;
+                }
+                updatedUser .password = btoa(newPassword); // Recuerda que esto no es seguro
+            }
+
+            try {
+                await axios.put(`${API_BASE_URL}/${currentUser.id}`, updatedUser );
+                setUsers(prevUsers => prevUsers.map(u => u.username === currentUser .username ? updatedUser  : u));
+                setCurrentUser (updatedUser );
+                toast.success(t('messages.profileUpdated'));
+                setIsProfileDialogOpen(false);
+                // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            } catch (error) {
+                toast.error(t('messages.profileUpdateFailed'));
+            }
+        }
+    }, [currentUser , t]);
 
     const handleCreatePublication = useCallback((e: React.FormEvent) => {
         e.preventDefault()
@@ -175,24 +228,6 @@ export default function Component() {
         }
     }, [currentUser, newPublication, t])
 
-    const handleEditProfile = useCallback((data: FieldValues) => {
-        const {university, newPassword} = data as { university: string, newPassword?: string };
-        if (currentUser) {
-            const updatedUser = {...currentUser, university};
-            if (newPassword) {
-                const passwordError = validatePassword(newPassword);
-                if (passwordError) {
-                    toast.error(passwordError);
-                    return;
-                }
-                updatedUser.password = btoa(newPassword);
-            }
-            setUsers(prevUsers => prevUsers.map(u => u.username === currentUser.username ? updatedUser : u));
-            setCurrentUser(updatedUser);
-            toast.success(t('messages.profileUpdated'));
-            setIsProfileDialogOpen(false);
-        }
-    }, [currentUser, t]);
 
     const handlePublicationClick = useCallback((publication: Publication) => {
         setSelectedPublication(publication)
