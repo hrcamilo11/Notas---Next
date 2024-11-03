@@ -134,6 +134,7 @@ export default function Component() {
             reset()
         } catch (error) {
             toast.error(t('messages.registrationFailed'))
+            console.error(error)
         }
     }, [reset, t])
 

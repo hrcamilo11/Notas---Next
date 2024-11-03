@@ -9,20 +9,38 @@ export class UserController {
         try {
             const {username, email, password, university} = req.body;
 
-            const existingUser = await User.findOne({$or: [{username}, {email}]});
+            // Validar que todos los campos requeridos están presentes
+            if (!username || !email || !password) {
+                return res.status(400).json({message: 'Username, email and password are required'});
+            }
+
+            // Verificar si el usuario ya existe
+            const existingUser = await User.findOne({$or: [{ username }, { email }]});
             if (existingUser) {
                 return res.status(400).json({message: 'Username or email already exists'});
             }
 
+            // Validar la longitud de la contraseña
+            if (password.length < 6) {
+                return res.status(400).json({message: 'Password must be at least 6 characters long'});
+            }
+
+            // Hashear la contraseña
             const hashedPassword = await bcrypt.hash(password, 10);
+
+            // Crear el nuevo usuario
             const newUser = new User({username, email, password: hashedPassword, university});
             await newUser.save();
 
+            // Responder con éxito
             res.status(201).json({message: 'User registered successfully'});
         } catch (error) {
+            console.error(error);  // Log del error para depuración
             res.status(500).json({message: 'Error registering user', error});
+            console.error(error)
         }
     }
+
 
     // Iniciar sesión
     async loginUser(req, res) {
@@ -72,17 +90,34 @@ export class UserController {
     // Actualizar un usuario
     async updateUser(req, res) {
         try {
-            const {id} = req.params;
-            const updates = req.body;
-            const user = await User.findByIdAndUpdate(id, updates, {new: true}).select('-password'); // Excluyendo la contraseña
-            if (!user) {
-                return res.status(404).json({message: 'User not found'});
+            const { id } = req.params; // Obteniendo el ID del usuario desde los parámetros de la ruta
+            const updates = req.body; // Obteniendo los datos de actualización del cuerpo de la solicitud
+
+            // Verificar si se proporciona una nueva contraseña
+            if (updates.password) {
+                // Validar la longitud de la nueva contraseña
+                if (updates.password.length < 6) {
+                    return res.status(400).json({ message: 'Password must be at least 6 characters long' });
+                }
+
+                // Hashear la nueva contraseña antes de actualizar
+                updates.password = await bcrypt.hash(updates.password, 10);
             }
-            res.json({message: 'User updated successfully', user});
+
+            // Actualizar el usuario en la base de datos
+            const user = await User.findByIdAndUpdate(id, updates, { new: true, runValidators: true });
+            if (!user) {
+                return res.status(404).json({ message: 'User not found' });
+            }
+
+            // Responder con éxito
+            res.json({ message: 'User updated successfully', user });
         } catch (error) {
-            res.status(500).json({message: 'Error updating user', error});
+            console.error(error);  // Log del error para depuración
+            res.status(500).json({ message: 'Error updating user', error });
         }
     }
+
 
     // Eliminar un usuario
     async deleteUser(req, res) {
