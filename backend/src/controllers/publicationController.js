@@ -1,5 +1,6 @@
 import Publication from '../models/publicationModel.js';
 
+
 export class PublicationController {
 
     // Crear una publicación
