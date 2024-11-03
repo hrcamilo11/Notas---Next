@@ -1,19 +1,14 @@
 'use client'
 
-import React, { useState, useEffect, useCallback } from 'react'
+import React, {useCallback, useEffect, useState} from 'react'
 import axios from 'axios'
-import { useTranslation } from 'react-i18next'
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { User, Search, Star, FileText, Download, Edit, Globe } from 'lucide-react'
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+import {useTranslation} from 'react-i18next'
+import {Button} from "@/components/ui/button"
+import {Input} from "@/components/ui/input"
+import {Label} from "@/components/ui/label"
+import {Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle} from "@/components/ui/card"
+import {Download, Edit, FileText, Globe, Search, Star, User} from 'lucide-react'
+import {DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,} from "@/components/ui/dropdown-menu"
 import {
     Dialog,
     DialogContent,
@@ -24,10 +19,10 @@ import {
     DialogTrigger,
 } from "@/components/ui/dialog"
 
-import { FieldValues, useForm } from 'react-hook-form'
-import { toast, ToastContainer } from 'react-toastify'
+import {FieldValues, useForm} from 'react-hook-form'
+import {toast, ToastContainer} from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
-import { debounce } from 'lodash'
+import {debounce} from 'lodash'
 import '../i18n'
 
 type User = {
