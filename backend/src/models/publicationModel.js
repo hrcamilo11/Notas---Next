@@ -1,5 +1,5 @@
 // eslint-disable-next-line @typescript-eslint/no-require-imports
-const mongoose = require('mongoose');
+import mongoose from "mongoose";
 
 const PublicationSchema = new mongoose.Schema({
     name: {type: String, required: true},
@@ -20,4 +20,5 @@ const PublicationSchema = new mongoose.Schema({
     }],
 }, {timestamps: true});
 
-module.exports = mongoose.model('Publication', PublicationSchema);
+const Publication = mongoose.model('Publication', PublicationSchema);
+export default Publication;

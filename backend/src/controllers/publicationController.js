@@ -1,5 +1,6 @@
 import Publication from '../models/publicationModel.js';
 
+
 export class PublicationController {
 
     // Crear una publicación
@@ -131,6 +132,13 @@ export class PublicationController {
     async searchPublications(req, res) {
         try {
             const {query} = req.query;
+
+            // Verificar que el query no esté vacío y sea una cadena
+            if (!query || typeof query !== 'string') {
+                return res.status(400).json({message: 'Invalid query parameter'});
+            }
+
+            // Realizar la búsqueda en la base de datos
             const publications = await Publication.find({
                 $or: [
                     {name: {$regex: query, $options: 'i'}},
@@ -139,8 +147,10 @@ export class PublicationController {
                 ]
             }).populate('author', 'username');
 
+            // Responder con las publicaciones encontradas
             res.json(publications);
         } catch (error) {
+            console.error(error);  // Log del error para depuración
             res.status(500).json({message: 'Error searching publications', error});
         }
     }
